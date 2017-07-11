@@ -1,9 +1,9 @@
 {
   "name": "Proyecto",
   "version": "0.0.0",
-  "private": true,
+  "private": false,
   "scripts": {
-    "start": "node app.js"
+    "start": "node ./bin/www"
   },
   "engines": {
     "node": "6.9.4"
