@@ -35,7 +35,7 @@ conn.on('error', console.error.bind(console, 'connection error:'));
 conn.once('open', function() {
   // Wait for the database connection to establish, then start the app.                         
 });
-
+/*
 app.get('/respaldar',function(req,res){
     console.log("Funcionado")
 backup({
@@ -52,7 +52,7 @@ backup({
     },
 });
 })
-
+*/
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
