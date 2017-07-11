@@ -26,8 +26,18 @@ var app = express();
 app.use(compress());
 app.use(express.static(__dirname + '/public'));
 
-
-mongoose.connect("mongodb://juanuni:metalmetal1@ds147872.mlab.com:47872/beneficios");
+var options = { server: { socketOptions: { keepAlive: 300000, connectTimeoutMS: 30000 } }, 
+                replset: { socketOptions: { keepAlive: 300000, connectTimeoutMS : 30000 } } };       
+ 
+var mongodbUri = 'mongodb://prueba:prueba@ds147872.mlab.com:47872/beneficios';
+mongoose.connect(mongodbUri, options);
+var conn = mongoose.connection;             
+ 
+conn.on('error', console.error.bind(console, 'connection error:'));  
+ 
+conn.once('open', function() {
+  // Wait for the database connection to establish, then start the app.                         
+});
 
 app.get('/respaldar',function(req,res){
     console.log("Funcionado")
