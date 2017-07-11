@@ -27,7 +27,7 @@ app.use(compress());
 app.use(express.static(__dirname + '/public'));
 
 
-mongoose.connect("mongodb://localhost/bienestar");
+mongoose.connect("mongodb://juanuni:metalmetal1@ds147872.mlab.com:47872/beneficios");
 
 app.get('/respaldar',function(req,res){
     console.log("Funcionado")
