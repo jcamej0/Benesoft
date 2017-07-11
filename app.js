@@ -1,4 +1,3 @@
-var compress = require('compression');
 var express = require('express');
 var svgCaptcha = require('svg-captcha');
 var path = require('path');
@@ -23,7 +22,6 @@ var backup = require('mongodb-backup');
 var bitacora = require('./model/bitacora').Bitacora;
 
 var app = express();
-app.use(compress());
 app.use(express.static(__dirname + '/public'));
 
 var options = { server: { socketOptions: { keepAlive: 300000, connectTimeoutMS: 30000 } }, 
@@ -71,9 +69,7 @@ app.use(session({ secret: 'secreto' }));
 app.use('/', routes);
 app.use('/users', users);
 
-app.listen(process.env.PORT || 3000, function(){
-  console.log('listening on', http.address().port);
-});
+app.listen(4000, function() {  });
 
 
 
