@@ -4,7 +4,7 @@
   "private": false,
   "scripts": {
   	 "prestart": "next build",
-    "start": "node app.js"
+    "start": "node ./bin/www"
   },
   "engines": {
     "node": "6.9.4"
