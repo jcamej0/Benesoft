@@ -71,7 +71,9 @@ app.use(session({ secret: 'secreto' }));
 app.use('/', routes);
 app.use('/users', users);
 
-app.listen(3000, function() {  });
+app.listen(process.env.PORT || 3000, function(){
+  console.log('listening on', http.address().port);
+});
 
 
 
