@@ -23,18 +23,23 @@ var bitacora = require('./model/bitacora').Bitacora;
 var app = express();
 app.use(express.static(__dirname + '/public'));
 
+
+var uristring =
+    process.env.MONGOLAB_URI ||
+    process.env.MONGOHQ_URL ||
+    'mongodb://prueba:prueba@ds147872.mlab.com:47872/beneficios';
+
+
 var options = { server: { socketOptions: { keepAlive: 300000, connectTimeoutMS: 30000 } }, 
                 replset: { socketOptions: { keepAlive: 300000, connectTimeoutMS : 30000 } } };       
  
-var mongodbUri = 'mongodb://prueba:prueba@ds147872.mlab.com:47872/beneficios';
-mongoose.connect(mongodbUri, options);
-var conn = mongoose.connection;             
- 
-conn.on('error', console.error.bind(console, 'connection error:'));  
- 
-conn.once('open', function() {
-  // Wait for the database connection to establish, then start the app.                         
-});
+    mongoose.connect(uristring, function (err, res) {
+      if (err) {
+      console.log ('ERROR connecting to: ' + uristring + '. ' + err);
+      } else {
+      console.log ('Succeeded connected to: ' + uristring);
+      }
+    });
 /*
 app.get('/respaldar',function(req,res){
     console.log("Funcionado")
