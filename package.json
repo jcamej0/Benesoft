@@ -3,10 +3,7 @@
   "version": "0.0.0",
   "private": false,
   "scripts": {
-	"dev": "next",
-		"build": "next build",
-		"start": "next start",
-		"heroku-postbuild": "next build"
+    "start": "node ./bin/www"
   },
   "engines": {
     "node": "6.9.4"
@@ -20,7 +17,6 @@
     "ejs": "~2.3.3",
     "express": "~4.13.1",
     "express-session": "^1.13.0",
-    "mongoose": "^4.10.8",
     "mongoose-bcrypt": "^1.4.2",
     "morgan": "~1.6.1",
     "nodemon": "^1.9.1",
