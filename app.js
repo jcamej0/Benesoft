@@ -71,7 +71,7 @@ app.use(session({ secret: 'secreto' }));
 app.use('/', routes);
 app.use('/users', users);
 
-app.listen(3000, '0.0.0.0', function() {  });
+app.listen(3000, function() {  });
 
 
 
