@@ -1,4 +1,9 @@
 
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+  display: none !important;
+}
+
+
 .completo{
   overflow: scroll;
 }
@@ -9,21 +14,55 @@
 }
 .cabezera{
 
-	background-color: #FF5722;
+	background-color: rgb(255, 136, 34);
 	color: white;
 	padding-left: 20px;
 
 }
 
+.ng-binding{
+  text-align: center;
+}
+md-toolbar.md-default-theme:not(.md-menu-toolbar), md-toolbar:not(.md-menu-toolbar){
+  background-color:#FFC594; 
+}
+.boton md-raised md-primary botonmenu md-button md-ink-ripple{
+background-color:red;
+}
+
+md-tabs.md-default-theme.md-accent>md-tabs-wrapper>md-tabs-canvas>md-pagination-wrapper>md-tab-item:not([disabled]), md-tabs.md-accent>md-tabs-wrapper>md-tabs-canvas>md-pagination-wrapper>md-tab-item:not([disabled]), md-tabs.md-default-theme.md-accent>md-tabs-wrapper>md-tabs-canvas>md-pagination-wrapper>md-tab-item:not([disabled]) md-icon, md-tabs.md-accent>md-tabs-wrapper>md-tabs-canvas>md-pagination-wrapper>md-tab-item:not([disabled]) md-icon{
+
+  color: white;
+
+}
+
+
+md-tabs.md-default-theme.md-accent>md-tabs-wrapper, md-tabs.md-accent>md-tabs-wrapper {
+
+  background-color:#e68f44;
+}
+.olvidoContrasena{
+  text-align: center;
+}
+
+.olvidoContrasena span{
+  cursor: pointer;
+}
 .logos{
 
 	float: right;
   margin-right: 10px;
 }
-
+.mensajePrimeraVez{
+  text-align: center;
+  color:red;
+}
+.modal-backdrop{
+  z-index: -1 !important;
+}
 
 .menubar{
-	background-color: #FF5722
+	background-color: rgb(255, 136, 34);
 ;
 }
 
@@ -70,7 +109,9 @@ color: black
   	font-size: 16px;
   }
 
-
+.boton{
+  background-color: rgb(216,67,21) !important;
+}
   .opcionesBeneficios{
 
   	margin: auto;

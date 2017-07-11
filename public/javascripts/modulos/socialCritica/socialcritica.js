@@ -14,7 +14,7 @@ app.controller('socialRegistro', function($scope, $http, $mdToast, $mdDialog, $m
         nombre = nombre.substr(0,1).toUpperCase() + nombre.substr(1);
         var apellido = $scope.formulario.apellidos;
         apellido = apellido.substr(0,1).toUpperCase() + apellido.substr(1);
-        var fecha = $filter('date')($scope.formulario.fecnac, "yyyy-MM-dd")
+          var fecha = new Date($scope.formulario.fecnac);
 
 
         data = {
@@ -111,7 +111,6 @@ app.controller('socialRegistro', function($scope, $http, $mdToast, $mdDialog, $m
 
 
 
-        console.log(data)
 
 
 
@@ -133,10 +132,10 @@ app.controller('socialRegistro', function($scope, $http, $mdToast, $mdDialog, $m
                 .cancel('Volver')
             $mdDialog.show(confirm).then(function() {
 
-                    $http.get('/verificarExpediente', { params: {cedula: data.cedula } }).success(function(respuesta) {
+                    $http.get('/verificarExpediente', { params: {cedula: data.cedula } }).then(function(respuesta) {
 
 
-                            if (respuesta == "expediente") {
+                            if (respuesta.data == "expediente") {
 
                                 var confirm = $mdDialog.confirm()
                                     .parent(angular.element(document.querySelector('#popupContainer')))
@@ -147,10 +146,10 @@ app.controller('socialRegistro', function($scope, $http, $mdToast, $mdDialog, $m
                                     .cancel('Volver')
                                 $mdDialog.show(confirm).then(function() {
 
-                                    $http.delete('/eliminarExpediente', { params: { cedula: $scope.formulario.cedula } }).success(function(data) {
+                                    $http.delete('/eliminarExpediente', { params: { cedula: $scope.formulario.cedula } }).then(function(data) {
                                     });
 
-                                    $http.post('/agregar', data).success(function(respuesta) {
+                                    $http.post('/agregar', data).then(function(respuesta) {
                                         $mdToast.show(
                                             $mdToast.simple()
                                             .textContent('¡Beneficiario Registrado! ')
@@ -164,10 +163,10 @@ app.controller('socialRegistro', function($scope, $http, $mdToast, $mdDialog, $m
                             } else {
 
 
-                                $http.post('/agregar', data).success(function(respuesta) {
+                                $http.post('/agregar', data).then(function(respuesta) {
 
 
-                                    if (respuesta == "ERROR") {
+                                    if (respuesta.data == "ERROR") {
 
                                         $mdToast.show(
                                             $mdToast.simple()
@@ -175,7 +174,7 @@ app.controller('socialRegistro', function($scope, $http, $mdToast, $mdDialog, $m
                                             .position('bottom')
                                             .hideDelay(3000)
                                         );
-                                    } else if (respuesta == "registrado") {
+                                    } else if (respuesta.data == "registrado") {
 
                                         $mdToast.show(
                                             $mdToast.simple()
@@ -225,11 +224,11 @@ app.controller('socialRegistro', function($scope, $http, $mdToast, $mdDialog, $m
 
     } else {
 
-        $http.post('/agregar', data).success(function(respuesta) {
+        $http.post('/agregar', data).then(function(respuesta) {
 
 
    
-            if (respuesta == "ERROR") {
+            if (respuesta.data == "ERROR") {
 
 
 
@@ -240,7 +239,7 @@ app.controller('socialRegistro', function($scope, $http, $mdToast, $mdDialog, $m
                     .position('bottom')
                     .hideDelay(3000)
                 );
-            } else if (respuesta == "registrado") {
+            } else if (respuesta.data == "registrado") {
 
 
                 $mdDialog.show(
@@ -281,12 +280,11 @@ app.controller('modificarSocialCritica', function($scope, $http, $stateParams, $
 
     
     $scope.prueba = $stateParams.code
-    $http.get('/consultaInfoX', { params: { _id: $stateParams.code } }).success(function(data) {
+    $http.get('/consultaInfoX', { params: { _id: $stateParams.code } }).then(function(data) {
 
-        $scope.infobeneficiado = data;
+        $scope.infobeneficiado = data.data;
 
-        var fecha =  $filter('date')($scope.infobeneficiado[0].fecnac, "yyyy-MM-dd")
-        fecha2 = new Date(fecha);
+        var fecha2 = new Date($scope.infobeneficiado[0].fecnac);
         $scope.formulario = {
 
             nombre: $scope.infobeneficiado[0].nombres,
@@ -476,10 +474,10 @@ app.controller('modificarSocialCritica', function($scope, $http, $stateParams, $
         };
 
 
-        $http.post('/actualizar', $scope.informacion).success(function(respuesta) {
+        $http.post('/actualizar', $scope.informacion).then(function(respuesta) {
 
 
-         if (respuesta=='Error') {
+         if (respuesta.data=='Error') {
 
                   $mdToast.show(
                 $mdToast.simple()
@@ -532,11 +530,11 @@ app.controller('consultaSocialCritica', function($scope, $http, $mdDialog, $wind
     $scope.beneficiarios = [];
     $scope.beneficio = 'Social Critica';
 
-    $http.get('/beneficiarios', { params: { beneficio: $scope.beneficio } }).success(function(data) {
+    $http.get('/beneficiarios', { params: { beneficio: $scope.beneficio } }).then(function(data) {
 
 
 
-        $scope.beneficiarios = data;
+        $scope.beneficiarios = data.data;
 
 
     })
@@ -546,7 +544,7 @@ app.controller('consultaSocialCritica', function($scope, $http, $mdDialog, $wind
     $scope.eliminar = function(cedula){
 
 
-    $http.delete('eliminar', {params: {cedula: cedula}}).success(function(data){
+    $http.delete('eliminar', {params: {cedula: cedula}}).then(function(data){
 
 
           $mdDialog.show(
@@ -570,10 +568,10 @@ app.controller('consultaSocialCritica', function($scope, $http, $mdDialog, $wind
 $scope.expedientar = function(cedula){
    
 
-$http.get('/consultaInfo',{params: {cedula:cedula }}).success(function(data){
+$http.get('/consultaInfo',{params: {cedula:cedula }}).then(function(data){
 
 
-$scope.infobeneficiado = data; 
+$scope.infobeneficiado = data.data; 
 
 
 data = {
@@ -669,9 +667,9 @@ data = {
         };
 
 
-    $http.post('/moverExpediente', data).success(function(respuesta){
+    $http.post('/moverExpediente', data).then(function(respuesta){
 
-    $http.delete('eliminar', {params: {cedula: cedula}}).success(function(data){
+    $http.delete('eliminar', {params: {cedula: cedula}}).then(function(data){
 
        $mdDialog.show(
       $mdDialog.alert()
@@ -701,88 +699,88 @@ app.controller('socialestadisticas', function($scope, $http) {
 
 
 
-    $http.get('/informacion', { params: { beneficio: 'Social Critica' } }).success(function(data) {
+    $http.get('/informacion', { params: { beneficio: 'Social Critica' } }).then(function(data) {
 
    
-        $scope.totalbeneficiarios = data;
+        $scope.totalbeneficiarios = data.data;
 
     });
 
 
-    $http.get('/informacion1', { params: { beneficio: 'Social Critica' } }).success(function(data) {
+    $http.get('/informacion1', { params: { beneficio: 'Social Critica' } }).then(function(data) {
 
-        $scope.totalbeneficiarioshombres = data;
-
-    });
-
-    $http.get('/informacion2', { params: { beneficio: 'Social Critica' } }).success(function(data) {
-
-        $scope.totalbeneficiariosmujeres = data;
+        $scope.totalbeneficiarioshombres = data.data;
 
     });
 
+    $http.get('/informacion2', { params: { beneficio: 'Social Critica' } }).then(function(data) {
 
-    $http.get('/informacion3', { params: { beneficio: 'Social Critica' } }).success(function(data) {
+        $scope.totalbeneficiariosmujeres = data.data;
+
+    });
+
+
+    $http.get('/informacion3', { params: { beneficio: 'Social Critica' } }).then(function(data) {
  
-        $scope.totalbeneficiarios3 = data;
+        $scope.totalbeneficiarios3 = data.data;
 
     });
 
 
-    $http.get('/informacion4', { params: { beneficio: 'Social Critica' } }).success(function(data) {
+    $http.get('/informacion4', { params: { beneficio: 'Social Critica' } }).then(function(data) {
 
-        $scope.totalbeneficiarios4 = data;
-
-    });
-
-
-
-    $http.get('/informacion5', { params: { beneficio: 'Social Critica' } }).success(function(data) {
-
-        $scope.totalbeneficiarios5 = data;
-
-    });
-
-
-    $http.get('/informacion6', { params: { beneficio: 'Social Critica' } }).success(function(data) {
-
-        $scope.totalbeneficiarios6 = data;
-
-    });
-
-
-    $http.get('/informacion7', { params: { beneficio: 'Social Critica' } }).success(function(data) {
-
-        $scope.totalbeneficiarios7 = data;
-
-    });
-
-
-    $http.get('/informacion8', { params: { beneficio: 'Social Critica' } }).success(function(data) {
-
-        $scope.totalbeneficiarios8 = data;
-
-    });
-
-
-    $http.get('/informacion9', { params: { beneficio: 'Social Critica' } }).success(function(data) {
-
-        $scope.totalbeneficiarios9 = data;
+        $scope.totalbeneficiarios4 = data.data;
 
     });
 
 
 
-    $http.get('/informacion10', { params: { beneficio: 'Social Critica' } }).success(function(data) {
+    $http.get('/informacion5', { params: { beneficio: 'Social Critica' } }).then(function(data) {
 
-        $scope.totalbeneficiarios10 = data;
+        $scope.totalbeneficiarios5 = data.data;
 
     });
 
 
-       $http.get('/informacion11', { params: { beneficio: 'Social Critica' } }).success(function(data) {
+    $http.get('/informacion6', { params: { beneficio: 'Social Critica' } }).then(function(data) {
 
-        $scope.totalbeneficiarios11 = data;
+        $scope.totalbeneficiarios6 = data.data;
+
+    });
+
+
+    $http.get('/informacion7', { params: { beneficio: 'Social Critica' } }).then(function(data) {
+
+        $scope.totalbeneficiarios7 = data.data;
+
+    });
+
+
+    $http.get('/informacion8', { params: { beneficio: 'Social Critica' } }).then(function(data) {
+
+        $scope.totalbeneficiarios8 = data.data;
+
+    });
+
+
+    $http.get('/informacion9', { params: { beneficio: 'Social Critica' } }).then(function(data) {
+
+        $scope.totalbeneficiarios9 = data.data;
+
+    });
+
+
+
+    $http.get('/informacion10', { params: { beneficio: 'Social Critica' } }).then(function(data) {
+
+        $scope.totalbeneficiarios10 = data.data;
+
+    });
+
+
+       $http.get('/informacion11', { params: { beneficio: 'Social Critica' } }).then(function(data) {
+
+        $scope.totalbeneficiarios11 = data.data;
 
     });
 
@@ -793,8 +791,8 @@ app.controller('socialReporte', function($scope, $http) {
 
     $scope.beneficiarios = [];
     $scope.beneficio = 'Social Critica';
-    $http.get('/beneficiarios', { params: { beneficio: $scope.beneficio } }).success(function(data) {
-        $scope.beneficiarios = data;
+    $http.get('/beneficiarios', { params: { beneficio: $scope.beneficio } }).then(function(data) {
+        $scope.beneficiarios = data.data;
 
         var arreglo = [];
         var arreglomayor = [];

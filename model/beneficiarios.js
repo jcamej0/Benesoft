@@ -87,6 +87,7 @@ var schemaBeneficiario = new Schema({
     recomendaciones: String,
     historial: Boolean,
     horario: Boolean,
+    copiacedula: Boolean,
     foto: Boolean,
     civilopiacedula: Boolean,
     modificadoPor: String,

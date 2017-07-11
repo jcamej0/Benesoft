@@ -14,7 +14,7 @@ app.controller('comedorRegistro', function($scope, $http, $mdToast, $mdDialog, $
         nombre = nombre.substr(0, 1).toUpperCase() + nombre.substr(1);
         var apellido = $scope.formulario.apellidos;
         apellido = apellido.substr(0, 1).toUpperCase() + apellido.substr(1);
-        var fecha = $filter('date')($scope.formulario.fecnac, "yyyy-MM-dd")
+           var fecha = new Date($scope.formulario.fecnac);
 
 
         data = {
@@ -133,10 +133,10 @@ app.controller('comedorRegistro', function($scope, $http, $mdToast, $mdDialog, $
                 .cancel('Volver')
             $mdDialog.show(confirm).then(function() {
 
-                $http.get('/verificarExpediente', { params: { cedula: data.cedula } }).success(function(respuesta) {
+                $http.get('/verificarExpediente', { params: { cedula: data.cedula } }).then(function(respuesta) {
 
 
-                    if (respuesta == "expediente") {
+                    if (respuesta.data == "expediente") {
 
                         var confirm = $mdDialog.confirm()
                             .parent(angular.element(document.querySelector('#popupContainer')))
@@ -147,9 +147,9 @@ app.controller('comedorRegistro', function($scope, $http, $mdToast, $mdDialog, $
                             .cancel('Volver')
                         $mdDialog.show(confirm).then(function() {
 
-                            $http.delete('/eliminarExpediente', { params: { cedula: $scope.formulario.cedula } }).success(function(data) {});
+                            $http.delete('/eliminarExpediente', { params: { cedula: $scope.formulario.cedula } }).then(function(data) {});
 
-                            $http.post('/agregarComedor', data).success(function(respuesta) {
+                            $http.post('/agregarComedor', data).then(function(respuesta) {
                                 $mdToast.show(
                                     $mdToast.simple()
                                     .textContent('¡Beneficiario Registrado! ')
@@ -163,10 +163,10 @@ app.controller('comedorRegistro', function($scope, $http, $mdToast, $mdDialog, $
                     } else {
 
 
-                        $http.post('/agregarComedor', data).success(function(respuesta) {
+                        $http.post('/agregarComedor', data).then(function(respuesta) {
 
 
-                            if (respuesta == "ERROR") {
+                            if (respuesta.data == "ERROR") {
 
                                 $mdToast.show(
                                     $mdToast.simple()
@@ -174,7 +174,7 @@ app.controller('comedorRegistro', function($scope, $http, $mdToast, $mdDialog, $
                                     .position('bottom')
                                     .hideDelay(3000)
                                 );
-                            } else if (respuesta == "registrado") {
+                            } else if (respuesta.data == "registrado") {
 
                                 $mdToast.show(
                                     $mdToast.simple()
@@ -223,11 +223,11 @@ app.controller('comedorRegistro', function($scope, $http, $mdToast, $mdDialog, $
 
         } else {
 
-            $http.post('/agregarComedor', data).success(function(respuesta) {
+            $http.post('/agregarComedor', data).then(function(respuesta) {
 
 
 
-                if (respuesta == "ERROR") {
+                if (respuesta.data == "ERROR") {
 
 
 
@@ -238,7 +238,7 @@ app.controller('comedorRegistro', function($scope, $http, $mdToast, $mdDialog, $
                         .position('bottom')
                         .hideDelay(3000)
                     );
-                } else if (respuesta == "registrado") {
+                } else if (respuesta.data == "registrado") {
 
 
                     $mdDialog.show(
@@ -279,12 +279,11 @@ app.controller('modificarComedor', function($scope, $http, $stateParams, $mdDial
 
 
     $scope.prueba = $stateParams.code
-    $http.get('/consultaInfoX2', { params: { _id: $stateParams.code } }).success(function(data) {
+    $http.get('/consultaInfoX2', { params: { _id: $stateParams.code } }).then(function(data) {
 
-        $scope.infobeneficiado = data;
+        $scope.infobeneficiado = data.data;
 
-        var fecha = $filter('date')($scope.infobeneficiado[0].fecnac, "yyyy-MM-dd")
-        fecha2 = new Date(fecha);
+     var fecha2 = new Date($scope.infobeneficiado[0].fecnac);
         $scope.formulario = {
 
             nombre: $scope.infobeneficiado[0].nombres,
@@ -468,11 +467,11 @@ app.controller('modificarComedor', function($scope, $http, $stateParams, $mdDial
         };
 
 
-        $http.post('/actualizarComedor', $scope.informacion).success(function(respuesta) {
+        $http.post('/actualizarComedor', $scope.informacion).then(function(respuesta) {
 
 
 
-             if (respuesta=='Error') {
+             if (respuesta.data=='Error') {
 
                   $mdToast.show(
                 $mdToast.simple()
@@ -525,11 +524,11 @@ app.controller('consultaComedor', function($scope, $http, $mdDialog, $window) {
     $scope.beneficiarios = [];
     $scope.beneficio = 'Comedor';
 
-    $http.get('/beneficiariosComedor', { params: { beneficio: $scope.beneficio } }).success(function(data) {
+    $http.get('/beneficiariosComedor', { params: { beneficio: $scope.beneficio } }).then(function(data) {
 
 
 
-        $scope.beneficiarios = data;
+        $scope.beneficiarios = data.data;
 
 
     })
@@ -539,7 +538,7 @@ app.controller('consultaComedor', function($scope, $http, $mdDialog, $window) {
     $scope.eliminar = function(cedula) {
 
 
-        $http.delete('eliminarComedor', { params: { cedula: cedula } }).success(function(data) {
+        $http.delete('eliminarComedor', { params: { cedula: cedula } }).then(function(data) {
 
 
             $mdDialog.show(
@@ -563,10 +562,10 @@ app.controller('consultaComedor', function($scope, $http, $mdDialog, $window) {
     $scope.expedientar = function(cedula) {
 
 
-        $http.get('/consultaInfoComedor', { params: { cedula: cedula } }).success(function(data) {
+        $http.get('/consultaInfoComedor', { params: { cedula: cedula } }).then(function(data) {
 
 
-            $scope.infobeneficiado = data;
+            $scope.infobeneficiado = data.data;
 
 
             data = {
@@ -659,9 +658,9 @@ app.controller('consultaComedor', function($scope, $http, $mdDialog, $window) {
             };
 
 
-            $http.post('/moverExpedienteComedor', data).success(function(respuesta) {
+            $http.post('/moverExpedienteComedor', data).then(function(respuesta) {
 
-                $http.delete('eliminarComedor', { params: { cedula: cedula } }).success(function(data) {
+                $http.delete('eliminarComedor', { params: { cedula: cedula } }).then(function(data) {
 
                     $mdDialog.show(
                         $mdDialog.alert()
@@ -691,116 +690,116 @@ app.controller('comedorestadisticas', function($scope, $http) {
 
 
 
-    $http.get('/informacioncomedor').success(function(data) {
+    $http.get('/informacioncomedor').then(function(data) {
 
 
-        $scope.totalbeneficiarios = data;
+        $scope.totalbeneficiarios = data.data;
 
 
     });
 
 
-    $http.get('/informacion1comedor').success(function(data) {
+    $http.get('/informacion1comedor').then(function(data) {
 
-        $scope.totalbeneficiarioshombres = data;
-
-    });
-
-    $http.get('/informacion2comedor').success(function(data) {
-
-        $scope.totalbeneficiariosmujeres = data;
+        $scope.totalbeneficiarioshombres = data.data;
 
     });
 
+    $http.get('/informacion2comedor').then(function(data) {
 
-    $http.get('/informacion3comedor').success(function(data) {
-
-        $scope.totalbeneficiarios3 = data;
+        $scope.totalbeneficiariosmujeres = data.data;
 
     });
 
 
-    $http.get('/informacion4comedor').success(function(data) {
+    $http.get('/informacion3comedor').then(function(data) {
 
-        $scope.totalbeneficiarios4 = data;
-
-    });
-
-
-
-    $http.get('/informacion5comedor').success(function(data) {
-
-        $scope.totalbeneficiarios5 = data;
+        $scope.totalbeneficiarios3 = data.data;
 
     });
 
 
-    $http.get('/informacion6comedor').success(function(data) {
+    $http.get('/informacion4comedor').then(function(data) {
 
-        $scope.totalbeneficiarios6 = data;
-
-    });
-
-
-    $http.get('/informacion7comedor').success(function(data) {
-
-        $scope.totalbeneficiarios7 = data;
-
-    });
-
-
-    $http.get('/informacion8comedor').success(function(data) {
-
-        $scope.totalbeneficiarios8 = data;
-
-    });
-
-
-    $http.get('/informacion9comedor').success(function(data) {
-
-        $scope.totalbeneficiarios9 = data;
+        $scope.totalbeneficiarios4 = data.data;
 
     });
 
 
 
-    $http.get('/informacion10comedor').success(function(data) {
+    $http.get('/informacion5comedor').then(function(data) {
 
-        $scope.totalbeneficiarios10 = data;
-
-    });
-
-
-    $http.get('/informacion11comedor').success(function(data) {
-
-        $scope.totalbeneficiarios11 = data;
-
-    });
-
-    $http.get('/informaciondacacomedor', { params: { comedor: 'Daca' } }).success(function(data) {
-
-        $scope.totalbeneficiariosdaca = data;
-
-    });
-
-    $http.get('/informacionfederacioncomedor', { params: { comedor: 'Federación' } }).success(function(data) {
-
-        $scope.totalbeneficiariosfederacion = data;
+        $scope.totalbeneficiarios5 = data.data;
 
     });
 
 
+    $http.get('/informacion6comedor').then(function(data) {
 
-    $http.get('/informacioncamilacomedor', { params: { comedor: 'Camila' } }).success(function(data) {
-
-        $scope.totalbeneficiarioscamila = data;
+        $scope.totalbeneficiarios6 = data.data;
 
     });
 
 
-    $http.get('/informaciondemocraciacomedor', { params: { comedor: 'Democracia' } }).success(function(data) {
+    $http.get('/informacion7comedor').then(function(data) {
 
-        $scope.totalbeneficiariosdemocracia = data;
+        $scope.totalbeneficiarios7 = data.data;
+
+    });
+
+
+    $http.get('/informacion8comedor').then(function(data) {
+
+        $scope.totalbeneficiarios8 = data.data;
+
+    });
+
+
+    $http.get('/informacion9comedor').then(function(data) {
+
+        $scope.totalbeneficiarios9 = data.data;
+
+    });
+
+
+
+    $http.get('/informacion10comedor').then(function(data) {
+
+        $scope.totalbeneficiarios10 = data.data;
+
+    });
+
+
+    $http.get('/informacion11comedor').then(function(data) {
+
+        $scope.totalbeneficiarios11 = data.data;
+
+    });
+
+    $http.get('/informaciondacacomedor', { params: { comedor: 'Daca' } }).then(function(data) {
+
+        $scope.totalbeneficiariosdaca = data.data;
+
+    });
+
+    $http.get('/informacionfederacioncomedor', { params: { comedor: 'Federación' } }).then(function(data) {
+
+        $scope.totalbeneficiariosfederacion = data.data;
+
+    });
+
+
+
+    $http.get('/informacioncamilacomedor', { params: { comedor: 'Camila' } }).then(function(data) {
+
+        $scope.totalbeneficiarioscamila = data.data;
+
+    });
+
+
+    $http.get('/informaciondemocraciacomedor', { params: { comedor: 'Democracia' } }).then(function(data) {
+
+        $scope.totalbeneficiariosdemocracia = data.data;
 
     });
 
@@ -815,8 +814,8 @@ app.controller('comedorReporte', function($scope, $http) {
     $scope.openPdf = function() {
 
         comedor = $scope.comedor
-        $http.get('/beneficiariosC', { params: { comedor: $scope.comedor } }).success(function(data) {
-            $scope.beneficiarios = data;
+        $http.get('/beneficiariosC', { params: { comedor: $scope.comedor } }).then(function(data) {
+            $scope.beneficiarios = data.data;
 
             var arreglo = [];
             var arreglomayor = [];
@@ -929,8 +928,8 @@ app.controller('comedorReporte', function($scope, $http) {
     $scope.downloadPdf = function() {
 
         comedor = $scope.comedor
-        $http.get('/beneficiariosC', { params: { comedor: $scope.comedor } }).success(function(data) {
-            $scope.beneficiarios = data;
+        $http.get('/beneficiariosC', { params: { comedor: $scope.comedor } }).then(function(data) {
+            $scope.beneficiarios = data.data;
 
             var arreglo = [];
             var arreglomayor = [];
@@ -1040,8 +1039,8 @@ app.controller('comedorReporte', function($scope, $http) {
 
     $scope.printPdf = function() {
         comedor = $scope.comedor
-        $http.get('/beneficiariosC', { params: { comedor: $scope.comedor } }).success(function(data) {
-            $scope.beneficiarios = data;
+        $http.get('/beneficiariosC', { params: { comedor: $scope.comedor } }).then(function(data) {
+            $scope.beneficiarios = data.data;
 
             var arreglo = [];
             var arreglomayor = [];
@@ -1156,10 +1155,10 @@ app.controller('comedorControl', function($scope, $http, $stateParams, $mdDialog
     $scope.cedula = $stateParams.ci;
     $scope.infobeneficiado;
 
-    $http.get('/consultaInfoComedor', { params: { cedula: $scope.cedula } }).success(function(data) {
+    $http.get('/consultaInfoComedor', { params: { cedula: $scope.cedula } }).then(function(data) {
 
 
-        $scope.infobeneficiado = data;
+        $scope.infobeneficiado = data.data;
 
 
     })
@@ -1169,7 +1168,7 @@ app.controller('comedorControl', function($scope, $http, $stateParams, $mdDialog
 
 
 
-        $http.delete('eliminarComedor', { params: { cedula: $scope.cedula } }).success(function(data) {
+        $http.delete('eliminarComedor', { params: { cedula: $scope.cedula } }).then(function(data) {
 
             $mdDialog.show(
                 $mdDialog.alert()
@@ -1285,9 +1284,9 @@ app.controller('comedorControl', function($scope, $http, $stateParams, $mdDialog
 
         };
 
-        $http.post('/moverExpedienteComedor', data).success(function(respuesta) {
+        $http.post('/moverExpedienteComedor', data).then(function(respuesta) {
 
-            $http.delete('eliminarComedor', { params: { cedula: $scope.cedula } }).success(function(data) {
+            $http.delete('eliminarComedor', { params: { cedula: $scope.cedula } }).then(function(data) {
 
                 $mdDialog.show(
                     $mdDialog.alert()

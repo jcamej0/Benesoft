@@ -90,6 +90,7 @@ var schemaPreparaduria = new Schema({
     historial: Boolean,
     horario: Boolean,
     foto: Boolean,
+    copiacedula: Boolean,
     civilopiacedula: Boolean,
     modificadoPor: String,
     persona: String,

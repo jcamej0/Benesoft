@@ -10,8 +10,8 @@ app.controller('reportesBecas', function($scope, $http) {
     $scope.openPdf = function() {
 
         beneficio = $scope.beneficio
-        $http.get('/beneficiariosBecas', { params: { beneficio: $scope.beneficio } }).success(function(data) {
-            $scope.beneficiarios = data;
+        $http.get('/beneficiariosBecas', { params: { beneficio: $scope.beneficio } }).then(function(data) {
+            $scope.beneficiarios = data.data;
             var arreglo = [];
             var arreglomayor = [];
 
@@ -120,8 +120,8 @@ app.controller('reportesBecas', function($scope, $http) {
     $scope.downloadPdf = function() {
 
         beneficio = $scope.beneficio
-        $http.get('/beneficiariosBecas', { params: { beneficio: $scope.beneficio } }).success(function(data) {
-            $scope.beneficiarios = data;
+        $http.get('/beneficiariosBecas', { params: { beneficio: $scope.beneficio } }).then(function(data) {
+            $scope.beneficiarios = data.data;
 
             var arreglo = [];
             var arreglomayor = [];
@@ -228,8 +228,8 @@ app.controller('reportesBecas', function($scope, $http) {
 
     $scope.printPdf = function() {
         beneficio = $scope.beneficio
-        $http.get('/beneficiariosBecas ', { params: { beneficio: $scope.beneficio } }).success(function(data) {
-            $scope.beneficiarios = data;
+        $http.get('/beneficiariosBecas ', { params: { beneficio: $scope.beneficio } }).then(function(data) {
+            $scope.beneficiarios = data.data;
             var arreglo = [];
             var arreglomayor = [];
 

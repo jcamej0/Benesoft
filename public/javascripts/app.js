@@ -1,329 +1,358 @@
-var app = angular.module('bienestar', ["chart.js", 'ui.router', 'ngMaterial', 'logueo', 'angularUtils.directives.dirPagination', 'md.data.table']);
+var app = angular.module('bienestar', ["chart.js",'ui.router', 'ngMaterial', 'logueo', 'angularUtils.directives.dirPagination', 'md.data.table','ngMaterialDateRangePicker']);
 
 
-app.config(function($stateProvider, $urlRouterProvider) {
+app.config(function($stateProvider) {
 
 
-    $stateProvider
 
-        .state('/', {
 
+    var main = {
+
+        name: 'main',
         url: "/",
-        templateUrl: 'vistas/menu.ejs'
-    })
+        templateUrl: 'menu.ejs'
+    }
 
 
-    .state('/dashboard', {
+        var perfil = {
 
+        name: 'perfil',
+        url: "/perfilInicio",
+        templateUrl: 'perfil.ejs'
+    }
+           var perfilDos = {
+
+        name: 'perfilDos',
+        url: "/perfil",
+        templateUrl: 'perfilDos.ejs'
+    }
+    var dashboard = {
+        name: 'dashboard',
         url: "/dashboard",
-        templateUrl: 'vistas/dashboard.ejs'
-    })
+        templateUrl: 'dashboard.ejs'
+    }
 
-    .state('/expedientes', {
-
+    var expedientes = {
+        name: 'expedientes',
         url: "/expedientes",
-        templateUrl: 'vistas/expedientes.ejs'
-    })
+        templateUrl: 'expedientes.ejs'
+    }
 
 
-    .state('/reportes', {
-
+    var reportes =  {
+        name: 'reportes',
         url: "/reportes",
-        templateUrl: 'vistas/reportes.ejs'
-    })
+        templateUrl: 'reportes.ejs'
+    }
 
-    .state('/reportes/becas', {
-
+    var reportesbecas = {
+        name: 'reportesbecas',
         url: "/reportes/becas",
-        templateUrl: 'vistas/reportesBecas.ejs'
-    })
+        templateUrl: 'reportesBecas.ejs'
+    }
 
 
-    .state('/reportes/comedor', {
+    var reportescomedor = {
+        name: 'reportescomedor',
 
         url: "/reportes/comedor",
-        templateUrl: 'vistas/reportesComedor.ejs'
-    })
+        templateUrl: 'reportesComedor.ejs'
+    }
 
 
-    .state('/reportes/preparadurias', {
-
+  var reportespreparadurias = {
+        name: 'reportespreparadurias',
         url: "/reportes/preparadurias",
-        templateUrl: 'vistas/reportesPreparadurias.ejs'
-    })
+        templateUrl: 'reportesPreparadurias.ejs'
+    }
 
 
 
-    .state('/reportes/ayudantias', {
-
+    var reportesayudantias = {
+        name: 'reportesayudantias',
         url: "/reportes/ayudantias",
-        templateUrl: 'vistas/reportesAyudantias.ejs'
-    })
+        templateUrl: 'reportesAyudantias.ejs'
+    }
 
 
-    .state('/expedientesAcademica', {
-
+    var expedientesacademica = {
+        name: 'expedientesacademica',
         url: "/expediente/academica",
-        templateUrl: 'vistas/expedientesacademica.ejs'
-    })
+        templateUrl: 'expedientesacademica.ejs'
+    }
 
-    .state('/expedientesDeporte', {
-
+    var expedientesdeporte = {
+        name: 'expedientesdeporte',
         url: "/expediente/deporte",
-        templateUrl: 'vistas/expedientesdeporte.ejs'
-    })
+        templateUrl: 'expedientesdeporte.ejs'
+    }
 
-    .state('/expedientesDiscapacidad', {
-
+    var expedientesdiscapacidad= {
+            name: 'expedientesdiscapacidad',
             url: "/expediente/discapacidad",
-            templateUrl: 'vistas/expedientesdiscapacidad.ejs'
-        })
-        .state('/expedientesComedor', {
+            templateUrl: 'expedientesdiscapacidad.ejs'
+        }
 
+     var expedientescomedor= {
+            name: 'expedientescomedor',
             url: "/expediente/comedor",
-            templateUrl: 'vistas/expedientescomedor.ejs'
-        })
+            templateUrl: 'expedientescomedor.ejs'
+        }
 
-    .state('/expedientesPreparadurias', {
-
+    var expedientespreparadurias ={
+        name:'expedientespreparadurias',
         url: "/expediente/preparadurias",
-        templateUrl: 'vistas/expedientesPreparaduria.ejs'
-    })
+        templateUrl: 'expedientesPreparaduria.ejs'
+    }
 
-    .state('/expedientesAyudantia', {
+   var expedientesayudantia={
+        name:'expedientesayudantia',
 
         url: "/expediente/ayudantias",
-        templateUrl: 'vistas/expedientesAyudantia.ejs'
-    })
+        templateUrl: 'expedientesAyudantia.ejs'
+    }
 
-    .state('/expedientesInfo', {
-
+    var expedientesinfo =  {
+        name: 'expedientesinfo',
         url: "/expedientesInfo/consultar/:ci",
-        templateUrl: 'vistas/expedientesInfo.ejs'
-    })
+        templateUrl: 'expedientesInfo.ejs'
+    }
 
-    .state('/expedientesInfoComedor', {
-
+   var expedientesinfocomedor ={
+        name: 'expedientesinfocomedor',
         url: "/expedientesInfoComedor/consultar/:ci",
-        templateUrl: 'vistas/expedientesInfoComedor.ejs'
-    })
+        templateUrl: 'expedientesInfoComedor.ejs'
+    }
 
 
-    .state('/expedientesInfoAyudantia', {
-
+   var expedientesinfoayudantia={
+        name: 'expedientesinfoayudantia',
         url: "/expedientesInfoAyudantia/consultar/:ci",
-        templateUrl: 'vistas/expedientesInfoAyudantia.ejs'
-    })
+        templateUrl: 'expedientesInfoAyudantia.ejs'
+    }
 
-    .state('/expedientesInfoPreparaduria', {
-
+   var expedientesinfopreparaduria= {
+            name:'expedientespreparaduriax',
             url: "/expedientesInfoPreparaduria/consultar/:ci",
-            templateUrl: 'vistas/expedientesInfoPreparaduria.ejs'
-        })
-        .state('/estadisticas', {
+            templateUrl: 'expedientesInfoPreparaduria.ejs'
+        }
 
+
+    var estadisticas = {
+                name: 'estadisticas',
                 url: "/estadisticas",
-                templateUrl: 'vistas/estadisticas.ejs'
+                templateUrl: 'estadisticas.ejs'
             }
 
-        )
-        .state('/estadisticas/beneficios', {
-
+        
+   var estadisticasbeneficios =  {
+            name: 'estadisticasbeneficios',
             url: "/estadisticas/becas",
-            templateUrl: 'vistas/estadisticasBecas.ejs'
-        })
+            templateUrl: 'estadisticasBecas.ejs'
+        }
 
 
-    .state('/estadisticas/comedor', {
-
+    var estadisticascomedor = {
+        name: 'estadisticascomedor',
         url: "/estadisticas/comedor",
-        templateUrl: 'vistas/estadisticasComedor.ejs'
-    })
+        templateUrl: 'estadisticasComedor.ejs'
+    }
 
 
-    .state('/estadisticas/ayudantia', {
-
+    var estadisticasayudantia =  {
+        name: 'estadisticasayudantia',
         url: "/estadisticas/ayudantias",
-        templateUrl: 'vistas/estadisticasAyudantia.ejs'
-    })
+        templateUrl: 'estadisticasAyudantia.ejs'
+    }
 
 
-    .state('/estadisticas/preparaduria', {
-
+    var estadisticaspreparaduria =  {
+        name: 'estadisticaspreparaduria',
         url: "/estadisticas/preparadurias",
-        templateUrl: 'vistas/estadisticasPreparaduria.ejs'
-    })
+        templateUrl: 'estadisticasPreparaduria.ejs'
+    }
 
-    .state('/pcontrol', {
-
+    var pcontrol =  {
+        name: 'pcontrol',
         url: "/pcontrol",
-        templateUrl: 'vistas/pcontrol.ejs'
+        templateUrl: 'pcontrol.ejs'
 
-    })
+    }
 
-    .state('/pcontrol/registro', {
-
+   var pcontrolregistro = {
+        name: 'pcontrolregistro',
         url: "/pcontrol/registro",
-        templateUrl: 'vistas/PanelControl/panel-registro.ejs'
+        templateUrl: 'PanelControl/panel-registro.ejs'
 
-    })
+    }
 
-    .state('/pcontrol/bdatos', {
-
+    var pcontrolbdatos = {
+            name: 'pcontrolbdatos',
             url: "/pcontrol/bdatos",
-            templateUrl: 'vistas/PanelControl/panel-bdatos.ejs'
+            templateUrl: 'PanelControl/panel-bdatos.ejs'
 
-        })
-        .state('/pcontrol/consultar', {
+        }
 
+          var auditar = {
+            name: 'auditar',
+            url: "/pcontrol/auditoria",
+            templateUrl: 'PanelControl/auditoria.ejs'
+
+        }
+    
+    var pcontrolconsultar = {
+            name: 'pcontrolconsultar',
             url: "/pcontrol/consultar",
-            templateUrl: 'vistas/PanelControl/pcontrolUsuarios.ejs'
+            templateUrl: 'PanelControl/pcontrolUsuarios.ejs'
 
-        })
-        .state('/socialcritica', {
+        }
 
+     var socialcritica1 =  {
+            name: 'socialcritica1',
             url: "/socialcritica",
-            templateUrl: 'vistas/SocialCritica/socialcritica'
-        })
+            templateUrl: 'SocialCritica/socialcritica.ejs'
+        }
 
-    .state('/socialcritica/registro', {
-
+   var  socialcritica2 = {
+            name: 'socialcritica2',
             url: "/socialcritica/registro",
-            templateUrl: 'vistas/SocialCritica/socialcritica-registro',
+            templateUrl: 'SocialCritica/socialcritica-registro.ejs',
 
-        })
-        .state('/socialcritica/consultar', {
-
+        }
+    var socialcritica3 =  {
+            name: 'socialcritica3',
             url: "/socialcritica/consultar",
-            templateUrl: 'vistas/SocialCritica/socialcritica-consulta',
+            templateUrl: 'SocialCritica/socialcritica-consulta.ejs',
 
-        })
-        .state('/socialcritica/consultaDatos', {
+        }
 
+    var socialcritica4 = {
+            name: 'socialcritica4',
             url: "/socialcritica/beneficiado/consultar/:ci",
-            templateUrl: 'vistas/SocialCritica/cinfoSocialCritica',
+            templateUrl: 'SocialCritica/cinfoSocialCritica.ejs',
 
-        })
-        .state('/socialcritica/modificar/datos', {
+        }
 
+
+ var socialcritica5 = {
+            name: 'socialcritica5',
             url: "/socialcritica/modificardatos/:code",
-            templateUrl: 'vistas/SocialCritica/socialcritica-modidatos',
+            templateUrl: 'SocialCritica/socialcritica-modidatos.ejs',
 
-        })
+        }
 
-    .state('/socialcritica/estadisticas', {
-
+var socialcritica6 = {
+            name: 'socialcritica6',
             url: "/socialcritica/estadisticas",
-            templateUrl: 'vistas/SocialCritica/socialcritica-estadisticas',
+            templateUrl: 'SocialCritica/socialcritica-estadisticas.ejs',
 
-        })
-        .state('/socialcritica/reportes', {
-
+        }
+var socialcritica7 =  {
+            name:'socialcritica7',
             url: "/socialcritica/reportes",
-            templateUrl: 'vistas/SocialCritica/socialcritica-reportes',
+            templateUrl: 'SocialCritica/socialcritica-reportes.ejs',
 
-        })
+        }
 
 
 
     /* ROUTING PARA ACADEMICA*/ /////////////////////////////////////////////////////////////
 
 
-    .state('/academica', {
-
+ var academica1 = {
+            name: 'academica1',
             url: "/academica",
-            templateUrl: 'vistas/Academica/academica',
-        })
-        .state('/academica/registro', {
-
+            templateUrl: 'Academica/academica.ejs',
+        }
+ var academica2 =  {
+            name: 'academica2',
             url: "/academica/registro",
-            templateUrl: 'vistas/Academica/academica-registro',
+            templateUrl: 'Academica/academica-registro.ejs',
 
-        })
+        }
 
-    .state('/academica/consultar', {
-
+var academica3 =  {
+            name: 'academica3',
             url: "/academica/consultar",
-            templateUrl: 'vistas/Academica/academica-consulta',
-        })
-        .state('/academica/modificar/datos', {
-
+            templateUrl: 'Academica/academica-consulta.ejs',
+        }
+ var academica4 = {
+            name: 'academica4',
             url: "/academica/modificardatos/:code",
-            templateUrl: 'vistas/Academica/academica-modidatos',
+            templateUrl: 'Academica/academica-modidatos.ejs',
 
-        })
-        .state('/academica/consultaDatos', {
+        }
 
+ var academica5 =  {
+            name: 'academica5',
             url: "/academica/beneficiado/consultar/:ci",
-            templateUrl: 'vistas/Academica/cinfoAcademica',
-        })
+            templateUrl: 'Academica/cinfoAcademica.ejs',
+        }
 
 
-    .state('/academica/reportes', {
-
+  var academica6 = {
+        name: 'academica6',
         url: "/academica/reportes",
-        templateUrl: 'vistas/Academica/academica-reportes',
+        templateUrl: 'Academica/academica-reportes.ejs',
 
-    })
+    }
 
 
-    .state('/academica/estadisticas', {
-
+   var academica7 = {
+        name: 'academica7',
         url: "/academica/estadisticas",
-        templateUrl: 'vistas/Academica/academica-estadisticas',
+        templateUrl: 'Academica/academica-estadisticas.ejs',
 
-    })
+    }
 
     /* ROUTING PARA DEPORTE*/ /////////////////////////////////////////////////////////////
 
 
-    .state('/deporte', {
-
+    var deporte1 = {
+            name: 'deporte1',
             url: "/deporte",
-            templateUrl: 'vistas/Deporte/deporte',
-        })
-        .state('/deporte/registro', {
+            templateUrl: 'Deporte/deporte.ejs',
+        }
 
+      var deporte2 = {
+            name: 'deporteRegistro',
             url: "/deporte/registro",
-            templateUrl: 'vistas/Deporte/deporte-registro',
-            controller: 'deporteRegistro'
-        })
+            templateUrl: 'Deporte/deporte-registro.ejs',
+        }
 
-    .state('/deporte/consultar', {
-
+    var deporte3 = {
+            name: 'deporte3',
             url: "/deporte/consultar",
-            templateUrl: 'vistas/Deporte/deporte-consulta',
-            controller: 'consultaAcademica'
-        })
-        .state('/deporte/modificar/datos', {
+            templateUrl: 'Deporte/deporte-consulta.ejs',
+        }
 
+     var deporte4 = {
+            name: 'deporte4',
             url: "/deporte/modificardatos/:code",
-            templateUrl: 'vistas/Deporte/deporte-modidatos',
-            controller: 'modificarDeporte'
-        })
-        .state('/deporte/consultaDatos', {
-
+            templateUrl: 'Deporte/deporte-modidatos.ejs',
+        }
+    var deporte5 = {
+            name: 'deporte5',
             url: "/deporte/beneficiado/consultar/:ci",
-            templateUrl: 'vistas/Deporte/cinfoDeporte',
-            controller: 'consultaControl'
-        })
+            templateUrl: 'Deporte/cinfoDeporte.ejs',
+        }
 
 
 
-    .state('/deporte/reportes', {
-
+   var deporte6 = {
+        name: 'deporte6',
         url: "/deporte/reportes",
-        templateUrl: 'vistas/Deporte/deporte-reportes',
+        templateUrl: 'Deporte/deporte-reportes.ejs',
 
-    })
+    }
 
 
-    .state('/deporte/estadisticas', {
-
+    var deporte7 =  {
+        name: 'deporte7',
         url: "/deporte/estadisticas",
-        templateUrl: 'vistas/Deporte/deporte-estadisticas',
+        templateUrl: 'Deporte/deporte-estadisticas.ejs',
 
-    })
+    }
 
 
 
@@ -331,211 +360,311 @@ app.config(function($stateProvider, $urlRouterProvider) {
 
     /*ROUTING PARA DISCAPACIDAD*/ ///////////////////////////////////
 
-    .state('/discapacidad', {
-
+    var discapacidad1 =  {
+            name: 'discapacidad1',
             url: "/discapacidad",
-            templateUrl: 'vistas/Discapacidad/discapacidad',
-        })
-        .state('/discapacidad/registro', {
-
+            templateUrl: 'Discapacidad/discapacidad.ejs',
+        }
+    var discapacidad2 = {
+            name: 'discapacidad2',
             url: "/discapacidad/registro",
-            templateUrl: 'vistas/Discapacidad/discapacidad-registro',
+            templateUrl: 'Discapacidad/discapacidad-registro.ejs',
 
-        })
+        }
 
-    .state('/discapacidad/consultar', {
-
+    var discapacidad3 = {
+            name: 'discapacidad3',
             url: "/discapacidad/consultar",
-            templateUrl: 'vistas/Discapacidad/discapacidad-consulta',
+            templateUrl: 'Discapacidad/discapacidad-consulta.ejs',
 
-        })
-        .state('/discapacidad/modificar/datos', {
+        }
 
+     var discapacidad4 = {
+            name: 'discapacidad4',
             url: "/discapacidad/modificardatos/:code",
-            templateUrl: 'vistas/Discapacidad/discapacidad-modidatos',
+            templateUrl: 'Discapacidad/discapacidad-modidatos.ejs',
 
-        })
-        .state('/discapacidad/consultaDatos', {
-
+        }
+    var discapacidad5 =  {
+            name: 'discapacidad5',
             url: "/discapacidad/beneficiado/consultar/:ci",
-            templateUrl: 'vistas/Discapacidad/cinfoDiscapacidad',
+            templateUrl: 'Discapacidad/cinfoDiscapacidad.ejs',
 
-        })
+        }
 
 
 
-    .state('/discapacidad/reportes', {
+    var discapacidad6 = {
 
+        name: 'discapacidad6',
         url: "/discapacidad/reportes",
-        templateUrl: 'vistas/Discapacidad/discapacidad-reportes',
+        templateUrl: 'Discapacidad/discapacidad-reportes.ejs',
 
-    })
+    }
 
 
-    .state('/discapacidad/estadisticas', {
-
+    var discapacidad7 = {
+        name: 'discapacidad7',
         url: "/discapacidad/estadisticas",
-        templateUrl: 'vistas/Discapacidad/discapacidad-estadisticas',
+        templateUrl: 'Discapacidad/discapacidad-estadisticas.ejs',
 
-    })
+    }
 
 
 
     /*ROUTING PARA COMEDOR*/ //////////////////////////////
 
 
-    .state('/comedor', {
-
+    var comedor1={
+            name: 'comedor1',
             url: "/comedor",
-            templateUrl: 'vistas/Comedor/comedor',
-        })
-        .state('/comedor/registro', {
-
+            templateUrl: 'Comedor/comedor.ejs',
+        }
+    var comedor2 ={
+            name: 'comedor2',
             url: "/comedor/registro",
-            templateUrl: 'vistas/Comedor/comedor-registro',
+            templateUrl: 'Comedor/comedor-registro.ejs',
 
-        })
+        }
 
-    .state('/comedor/consultar', {
-
+   var comedor3= {
+            name: 'comedor3',
             url: "/comedor/consultar",
-            templateUrl: 'vistas/Comedor/comedor-consulta',
+            templateUrl: 'Comedor/comedor-consulta.ejs',
 
-        })
-        .state('/comedor/modificar/datos', {
+        }
 
+    var comedor4= {
+            name: 'comedor4',
             url: "/comedor/modificardatos/:code",
-            templateUrl: 'vistas/Comedor/comedor-modidatos',
+            templateUrl: 'Comedor/comedor-modidatos.ejs',
 
-        })
-        .state('/comedor/consultaDatos', {
-
+        }
+    var comedor5={
+            name: 'comedor5',
             url: "/comedor/beneficiado/consultar/:ci",
-            templateUrl: 'vistas/Comedor/cinfocomedor',
+            templateUrl: 'Comedor/cinfocomedor.ejs',
 
-        })
+        }
 
-    .state('/comedor/estadisticas', {
-
+   var comedor6 ={
+        name: 'comedor6',
         url: "/comedor/estadisticas",
-        templateUrl: 'vistas/Comedor/comedor-estadisticas',
+        templateUrl: 'Comedor/comedor-estadisticas.ejs',
 
-    })
+    }
 
 
-    .state('/comedor/reportes', {
-
+   var comedor7={
+        name:'comedor7',
         url: "/comedor/reportes",
-        templateUrl: 'vistas/Comedor/comedor-reportes',
+        templateUrl: 'Comedor/comedor-reportes.ejs',
 
-    })
+    }
 
 
     //Routing para Preparaduria y ayudantias!!
 
-    .state('/pya', {
-
+   var pya1 = {
+        name: 'pya1',
         url: "/pya",
-        templateUrl: 'vistas/PreparaduriaAyudantia/pya',
-    })
+        templateUrl: 'PreparaduriaAyudantia/pya.ejs',
+    }
 
 
-    .state('/pya/registrar/preparaduria', {
+    var pya2 = {
+        name: 'pya2',
 
         url: "/pya/registrar/preparaduria",
-        templateUrl: 'vistas/PreparaduriaAyudantia/registrarPreparaduria',
-    })
+        templateUrl: 'PreparaduriaAyudantia/registrarPreparaduria.ejs',
+    }
 
 
-    .state('/pya/consultar/preparaduria', {
-
+    var pya3 = {
+        name : 'pya3',
         url: "/pya/consultar/preparaduria",
-        templateUrl: 'vistas/PreparaduriaAyudantia/consultarPreparaduria',
-    })
+        templateUrl: 'PreparaduriaAyudantia/consultarPreparaduria.ejs',
+    }
 
-    .state('/pya/consultaDatos/preparaduria', {
-
+    var pya4 =  {
+        name : 'pya4',
         url: "/pya/preparaduria/consultar/:ci",
-        templateUrl: 'vistas/PreparaduriaAyudantia/cinfoPreparaduria',
+        templateUrl: 'PreparaduriaAyudantia/cinfoPreparaduria.ejs',
 
-    })
+    }
 
 
-    .state('/preparaduria/modificar/datos', {
+    var pya5 = {
 
+        name: 'pya5',
         url: "/pya/preparaduria/modificardatos/:code",
-        templateUrl: 'vistas/PreparaduriaAyudantia/preparaduria-modidatos',
+        templateUrl: 'PreparaduriaAyudantia/preparaduria-modidatos.ejs',
 
-    })
+    }
 
-    .state('/preparaduria/repotes/preparaduria', {
+    var pya6 = {
 
+        name: 'pya6',
         url: "/pya/reportes/preparaduria",
-        templateUrl: 'vistas/PreparaduriaAyudantia/preparaduria-reportes',
+        templateUrl: 'PreparaduriaAyudantia/preparaduria-reportes.ejs',
 
-    })
-
-
+    }
 
 
 
-    .state('/pya/registrar/ayudantia', {
 
+
+    var pya7 = {
+
+        name: 'pya7',
         url: "/pya/registrar/ayudantia",
-        templateUrl: 'vistas/PreparaduriaAyudantia/registrarAyudantia',
-    })
+        templateUrl: 'PreparaduriaAyudantia/registrarAyudantia.ejs',
+    }
 
 
 
 
-    .state('/pya/consultar/ayudantia', {
+    var pya8 = {
+        name:'pya8',
 
         url: "/pya/consultar/ayudantia",
-        templateUrl: 'vistas/PreparaduriaAyudantia/consultarAyudantia',
-    })
+        templateUrl: 'PreparaduriaAyudantia/consultarAyudantia.ejs',
+    }
 
-    .state('/pya/consultaDatos/ayudantia', {
+   var pya9 = {
+    name: 'pya9',
 
         url: "/pya/ayudantia/consultar/:ci",
-        templateUrl: 'vistas/PreparaduriaAyudantia/cinfoAyudantia',
+        templateUrl: 'PreparaduriaAyudantia/cinfoAyudantia.ejs',
 
-    })
+    }
 
 
-    .state('/ayudantia/modificar/datos', {
+   var pya10 =  {
+    name:'pya10',
 
         url: "/pya/ayudantia/modificardatos/:code",
-        templateUrl: 'vistas/PreparaduriaAyudantia/ayudantia-modidatos',
+        templateUrl: 'PreparaduriaAyudantia/ayudantia-modidatos.ejs',
 
-    })
+    }
 
-    .state('/ayudantia/repotes/ayudantia', {
+   var pya11 = {
+        name: 'pya11',
 
         url: "/pya/reportes/ayudantia",
-        templateUrl: 'vistas/PreparaduriaAyudantia/ayudantia-reportes',
+        templateUrl: 'PreparaduriaAyudantia/ayudantia-reportes.ejs',
 
-    })
+    }
 
-    .state('/ayudantia/estadisticas', {
+    var pya12  = {
+        name:'pya12',
 
         url: "/pya/estadisticas/ayudantia",
-        templateUrl: 'vistas/PreparaduriaAyudantia/ayudantia-estadisticas',
+        templateUrl: 'PreparaduriaAyudantia/ayudantia-estadisticas.ejs',
 
-    })
+    }
 
 
-    .state('/preparaduria/estadisticas', {
+   var pya13 = {
+        name: 'pya13',
 
         url: "/pya/estadisticas/preparaduria",
-        templateUrl: 'vistas/PreparaduriaAyudantia/preparaduria-estadisticas',
+        templateUrl: 'PreparaduriaAyudantia/preparaduria-estadisticas.ejs',
+    }
 
-    })
+
+  $stateProvider.state(main);
+  $stateProvider.state(dashboard);
+   $stateProvider.state(expedientes);
+    $stateProvider.state(reportes);
+     $stateProvider.state(reportesbecas);
+      $stateProvider.state(reportescomedor);
+       $stateProvider.state(reportespreparadurias);
+        $stateProvider.state(reportesayudantias);
+         $stateProvider.state(expedientesacademica);
+          $stateProvider.state(expedientesdeporte);
+           $stateProvider.state(expedientesdiscapacidad);
+            $stateProvider.state(expedientescomedor);
+             $stateProvider.state(expedientespreparadurias);
+              $stateProvider.state(expedientesayudantia);
+               $stateProvider.state(expedientesinfo);
+                $stateProvider.state(expedientesinfocomedor);
+                 $stateProvider.state(expedientesinfoayudantia);
+                  $stateProvider.state(expedientesinfopreparaduria);
+                   $stateProvider.state(estadisticas);
+                    $stateProvider.state(estadisticasbeneficios);
+                     $stateProvider.state(estadisticascomedor);
+                      $stateProvider.state(estadisticasayudantia);
+                       $stateProvider.state(estadisticaspreparaduria);
+                        $stateProvider.state(pcontrol);
+                         $stateProvider.state(pcontrolregistro);
+                          $stateProvider.state(pcontrolbdatos);
+                           $stateProvider.state(pcontrolconsultar);
+                            $stateProvider.state(socialcritica1);
+                            $stateProvider.state(socialcritica2);
+                            $stateProvider.state(socialcritica3);
+                            $stateProvider.state(socialcritica4);
+                            $stateProvider.state(socialcritica5);
+                            $stateProvider.state(socialcritica6);
+                            $stateProvider.state(socialcritica7);
+                            $stateProvider.state(academica1);
+                            $stateProvider.state(academica2);
+                            $stateProvider.state(academica3);
+                            $stateProvider.state(academica4);
+                            $stateProvider.state(academica5);
+                            $stateProvider.state(academica6);
+                            $stateProvider.state(academica7);
+                            $stateProvider.state(deporte1);
+                            $stateProvider.state(deporte2);
+                            $stateProvider.state(deporte3);
+                            $stateProvider.state(deporte4);
+                            $stateProvider.state(deporte5);
+                            $stateProvider.state(deporte6);
+                            $stateProvider.state(deporte7);
+                            $stateProvider.state(discapacidad1);
+                            $stateProvider.state(discapacidad2);
+                            $stateProvider.state(discapacidad3);
+                            $stateProvider.state(discapacidad4);
+                            $stateProvider.state(discapacidad5);
+                            $stateProvider.state(discapacidad6);
+                            $stateProvider.state(discapacidad7);
+                            $stateProvider.state(comedor1);
+                            $stateProvider.state(comedor2);
+                            $stateProvider.state(comedor3);
+                            $stateProvider.state(comedor4);
+                            $stateProvider.state(comedor5);
+                            $stateProvider.state(comedor6);
+                            $stateProvider.state(comedor7);
+                            $stateProvider.state(pya1);
+                             $stateProvider.state(pya2);
+                              $stateProvider.state(pya3);
+                               $stateProvider.state(pya4);
+                                $stateProvider.state(pya5);
+                                 $stateProvider.state(pya6);
+                                  $stateProvider.state(pya7);
+                                   $stateProvider.state(pya8);
+                                    $stateProvider.state(pya9);
+                                     $stateProvider.state(pya10);
+                                      $stateProvider.state(pya11);
+                                       $stateProvider.state(pya12);
+                                        $stateProvider.state(pya13);
+                                        $stateProvider.state(auditar);
+                                            $stateProvider.state(perfil);
+                                                $stateProvider.state(perfilDos);
+
+
+
+
+
+
 
 
 
 
 });
-
+app.config(['$locationProvider', function($locationProvider) {
+        $locationProvider.hashPrefix('');
+    }]);
 
 
 app.directive('numbersOnly', function() {
@@ -631,7 +760,7 @@ app.directive('phoneNumber', function() {
             require: 'ngModel',
             link: function(scope, element, attr, ngModelCtrl) {
                 function fromUser(text) {
-                    var transformedInput = text.replace(/[^a-zA-Z" "]/g, '');
+                    var transformedInput = text.replace(/[^a-zñáéíóú A-ZÑÁÉÍÓÚ" "]/g, '');
 
                     if (transformedInput !== text) {
                         ngModelCtrl.$setViewValue(transformedInput);
@@ -648,7 +777,7 @@ app.directive('phoneNumber', function() {
 
 app.controller('controladorPrincipal', function($scope, $http, $mdToast, $mdDialog, $mdMedia, $window, $filter) {
 
-
+$scope.primeracceso = $window.primeracceso;
 
 $scope.salir = function(){
 
@@ -684,7 +813,8 @@ $scope.salir = function(){
         { nombre: 'Quimica' },
         { nombre: 'Instrumentacion' },
         { nombre: 'Informatica' },
-        { nombre: 'Mecanica' }
+        { nombre: 'Mecanica' },
+        { nombre: 'Procesos Quimicos' }
     ]
 
     $scope.trayecto = [
@@ -1319,11 +1449,11 @@ $scope.salir = function(){
 app.controller('consultaUsuariosPcontrol', function($scope, $http, $stateParams, $mdDialog, $window, $mdMedia, $mdToast) {
 
 
-    $http.get('/consultarPanelUsuarios').success(function(data) {
+    $http.get('/consultarPanelUsuarios').then(function(data) {
 
 
 
-        $scope.usuarios = data;
+        $scope.usuarios = data.data;
 
 
 
@@ -1378,7 +1508,7 @@ app.controller('consultaUsuariosPcontrol', function($scope, $http, $stateParams,
 
             }
         }
-        $http.post('/actualizarUsuario', $scope.user).success(function(respuesta) {
+        $http.post('/actualizarUsuario', $scope.user).then(function(respuesta) {
 
 
             $mdDialog.show(
@@ -1405,7 +1535,7 @@ app.controller('consultaUsuariosPcontrol', function($scope, $http, $stateParams,
     $scope.eliminar = function(ide) {
 
 
-        $http.delete('/eliminarUsuario', { params: { id: ide } }).success(function(data) {
+        $http.delete('/eliminarUsuario', { params: { id: ide } }).then(function(data) {
 
 
             $mdToast.show(
@@ -1422,6 +1552,46 @@ app.controller('consultaUsuariosPcontrol', function($scope, $http, $stateParams,
 
     }
 
+
+
+        $scope.desbloquear = function(ide) {
+
+
+   
+
+
+    $http.get('/desbloquear', {params: { ide: ide}}).then(function(response){
+
+        if(response.data == 1){
+
+
+ alert("Usuario desbloqueado");
+            location.reload();
+    
+
+}
+})
+
+
+
+}
+
+$scope.desbloquearRespuesta = function(ide){
+        $http.get('/desbloquearRespuesta', {params: { ide: ide}}).then(function(response){
+
+        if(response.data == 1){
+
+
+ alert("Intentos respuesta secreta restaurados");
+            location.reload();
+    
+
+}
+})
+}
+
+    
+
 });
 
 app.controller('expedientesInfo', function($scope, $http, $stateParams, $mdDialog, $window) {
@@ -1432,17 +1602,17 @@ app.controller('expedientesInfo', function($scope, $http, $stateParams, $mdDialo
     $scope.cedula = $stateParams.ci;
     $scope.infobeneficiado;
 
-    $http.get('/consultaInfoExpedientes', { params: { cedula: $scope.cedula } }).success(function(data) {
+    $http.get('/consultaInfoExpedientes', { params: { cedula: $scope.cedula } }).then(function(data) {
 
 
-        $scope.infobeneficiado = data;
+        $scope.infobeneficiado = data.data;
 
     })
 
     $scope.eliminar = function() {
 
 
-        $http.delete('eliminarExpediente', { params: { cedula: $scope.cedula } }).success(function(data) {
+        $http.delete('eliminarExpediente', { params: { cedula: $scope.cedula } }).then(function(data) {
 
             $mdDialog.show(
                 $mdDialog.alert()
@@ -1556,9 +1726,9 @@ app.controller('expedientesInfo', function($scope, $http, $stateParams, $mdDialo
 
         };
 
-        $http.post('/moveraBeneficio', data).success(function(respuesta) {
+        $http.post('/moveraBeneficio', data).then(function(respuesta) {
 
-            $http.delete('eliminarExpediente', { params: { cedula: $scope.cedula } }).success(function(data) {
+            $http.delete('eliminarExpediente', { params: { cedula: $scope.cedula } }).then(function(data) {
 
                 $mdDialog.show(
                     $mdDialog.alert()
@@ -1595,17 +1765,17 @@ app.controller('expedientesInfoAyudantia', function($scope, $http, $stateParams,
     $scope.cedula = $stateParams.ci;
     $scope.infobeneficiado;
 
-    $http.get('/consultaInfoExpedientes', { params: { cedula: $scope.cedula } }).success(function(data) {
+    $http.get('/consultaInfoExpedientes', { params: { cedula: $scope.cedula } }).then(function(data) {
 
 
-        $scope.infobeneficiado = data;
+        $scope.infobeneficiado = data.data;
 
     })
 
     $scope.eliminar = function() {
 
 
-        $http.delete('eliminarExpediente', { params: { cedula: $scope.cedula } }).success(function(data) {
+        $http.delete('eliminarExpediente', { params: { cedula: $scope.cedula } }).then(function(data) {
 
             $mdDialog.show(
                 $mdDialog.alert()
@@ -1721,9 +1891,9 @@ app.controller('expedientesInfoAyudantia', function($scope, $http, $stateParams,
 
         };
 
-        $http.post('/moveraBeneficioAyudantia', data).success(function(respuesta) {
+        $http.post('/moveraBeneficioAyudantia', data).then(function(respuesta) {
 
-            $http.delete('eliminarExpediente', { params: { cedula: $scope.cedula } }).success(function(data) {
+            $http.delete('eliminarExpediente', { params: { cedula: $scope.cedula } }).then(function(data) {
 
                 $mdDialog.show(
                     $mdDialog.alert()
@@ -1756,17 +1926,17 @@ app.controller('expedientesInfoPreparaduria', function($scope, $http, $statePara
     $scope.cedula = $stateParams.ci;
     $scope.infobeneficiado;
 
-    $http.get('/consultaInfoExpedientes', { params: { cedula: $scope.cedula } }).success(function(data) {
+    $http.get('/consultaInfoExpedientes', { params: { cedula: $scope.cedula } }).then(function(data) {
 
 
-        $scope.infobeneficiado = data;
+        $scope.infobeneficiado = data.data;
 
     })
 
     $scope.eliminar = function() {
 
 
-        $http.delete('eliminarExpediente', { params: { cedula: $scope.cedula } }).success(function(data) {
+        $http.delete('eliminarExpediente', { params: { cedula: $scope.cedula } }).then(function(data) {
 
             $mdDialog.show(
                 $mdDialog.alert()
@@ -1882,9 +2052,9 @@ app.controller('expedientesInfoPreparaduria', function($scope, $http, $statePara
 
         };
 
-        $http.post('/moveraBeneficioPreparaduria', data).success(function(respuesta) {
+        $http.post('/moveraBeneficioPreparaduria', data).then(function(respuesta) {
 
-            $http.delete('eliminarExpediente', { params: { cedula: $scope.cedula } }).success(function(data) {
+            $http.delete('eliminarExpediente', { params: { cedula: $scope.cedula } }).then(function(data) {
 
                 $mdDialog.show(
                     $mdDialog.alert()
@@ -1921,17 +2091,17 @@ app.controller('expedientesInfoComedor', function($scope, $http, $stateParams, $
     $scope.cedula = $stateParams.ci;
     $scope.infobeneficiado;
 
-    $http.get('/consultaInfoExpedientes', { params: { cedula: $scope.cedula } }).success(function(data) {
+    $http.get('/consultaInfoExpedientes', { params: { cedula: $scope.cedula } }).then(function(data) {
 
 
-        $scope.infobeneficiado = data;
+        $scope.infobeneficiado = data.data;
 
     })
 
     $scope.eliminar = function() {
 
 
-        $http.delete('eliminarExpediente', { params: { cedula: $scope.cedula } }).success(function(data) {
+        $http.delete('eliminarExpediente', { params: { cedula: $scope.cedula } }).then(function(data) {
 
             $mdDialog.show(
                 $mdDialog.alert()
@@ -2040,9 +2210,9 @@ app.controller('expedientesInfoComedor', function($scope, $http, $stateParams, $
 
         };
 
-        $http.post('/moveraBeneficioComedor', data).success(function(respuesta) {
+        $http.post('/moveraBeneficioComedor', data).then(function(respuesta) {
 
-            $http.delete('eliminarExpediente', { params: { cedula: $scope.cedula } }).success(function(data) {
+            $http.delete('eliminarExpediente', { params: { cedula: $scope.cedula } }).then(function(data) {
 
                 $mdDialog.show(
                     $mdDialog.alert()
@@ -2087,10 +2257,10 @@ app.controller('consultaControl', function($scope, $http, $stateParams, $mdDialo
     $scope.cedula = $stateParams.ci;
     $scope.infobeneficiado;
 
-    $http.get('/consultaInfo', { params: { cedula: $scope.cedula } }).success(function(data) {
+    $http.get('/consultaInfo', { params: { cedula: $scope.cedula } }).then(function(data) {
 
 
-        $scope.infobeneficiado = data;
+        $scope.infobeneficiado = data.data;
 
 
     })
@@ -2100,7 +2270,7 @@ app.controller('consultaControl', function($scope, $http, $stateParams, $mdDialo
 
 
 
-        $http.delete('eliminar', { params: { cedula: $scope.cedula } }).success(function(data) {
+        $http.delete('eliminar', { params: { cedula: $scope.cedula } }).then(function(data) {
 
             $mdDialog.show(
                 $mdDialog.alert()
@@ -2216,9 +2386,9 @@ app.controller('consultaControl', function($scope, $http, $stateParams, $mdDialo
 
         };
 
-        $http.post('/moverExpediente', data).success(function(respuesta) {
+        $http.post('/moverExpediente', data).then(function(respuesta) {
 
-            $http.delete('eliminar', { params: { cedula: $scope.cedula } }).success(function(data) {
+            $http.delete('eliminar', { params: { cedula: $scope.cedula } }).then(function(data) {
 
                 $mdDialog.show(
                     $mdDialog.alert()
@@ -2249,11 +2419,11 @@ app.controller('expedientessocial', function($http, $scope) {
 
     var beneficio = 'Social Critica';
 
-    $http.get('/exbeneficiarios', { params: { beneficio: beneficio } }).success(function(data) {
+    $http.get('/exbeneficiarios', { params: { beneficio: beneficio } }).then(function(data) {
 
 
 
-        $scope.exbeneficiarios = data;
+        $scope.exbeneficiarios = data.data;
 
 
     })
@@ -2266,11 +2436,11 @@ app.controller('expedienteacademica', function($http, $scope) {
 
     beneficio = 'Academica';
 
-    $http.get('/exbeneficiarios', { params: { beneficio: beneficio } }).success(function(data) {
+    $http.get('/exbeneficiarios', { params: { beneficio: beneficio } }).then(function(data) {
 
 
 
-        $scope.exbeneficiarios = data;
+        $scope.exbeneficiarios = data.data;
 
 
     })
@@ -2284,11 +2454,11 @@ app.controller('expedientecomedor', function($http, $scope) {
 
     beneficio = 'Comedor';
 
-    $http.get('/exbeneficiarios', { params: { beneficio: beneficio } }).success(function(data) {
+    $http.get('/exbeneficiarios', { params: { beneficio: beneficio } }).then(function(data) {
 
 
 
-        $scope.exbeneficiarios = data;
+        $scope.exbeneficiarios = data.data;
 
 
     })
@@ -2301,11 +2471,11 @@ app.controller('expedienteayudantia', function($http, $scope) {
 
     beneficio = 'Ayudantia';
 
-    $http.get('/exbeneficiarios', { params: { beneficio: beneficio } }).success(function(data) {
+    $http.get('/exbeneficiarios', { params: { beneficio: beneficio } }).then(function(data) {
 
 
 
-        $scope.exbeneficiarios = data;
+        $scope.exbeneficiarios = data.data;
 
 
     })
@@ -2318,11 +2488,11 @@ app.controller('expedientepreparaduria', function($http, $scope) {
 
     beneficio = 'Preparaduria';
 
-    $http.get('/exbeneficiarios', { params: { beneficio: beneficio } }).success(function(data) {
+    $http.get('/exbeneficiarios', { params: { beneficio: beneficio } }).then(function(data) {
 
 
 
-        $scope.exbeneficiarios = data;
+        $scope.exbeneficiarios = data.data;
 
 
     })
@@ -2334,11 +2504,11 @@ app.controller('expedientedeporte', function($http, $scope) {
 
     beneficio = 'Deporte';
 
-    $http.get('/exbeneficiarios', { params: { beneficio: beneficio } }).success(function(data) {
+    $http.get('/exbeneficiarios', { params: { beneficio: beneficio } }).then(function(data) {
 
 
 
-        $scope.exbeneficiarios = data;
+        $scope.exbeneficiarios = data.data;
 
 
     })
@@ -2351,11 +2521,11 @@ app.controller('expedientediscapacidad', function($http, $scope) {
 
     beneficio = 'Discapacidad';
 
-    $http.get('/exbeneficiarios', { params: { beneficio: beneficio } }).success(function(data) {
+    $http.get('/exbeneficiarios', { params: { beneficio: beneficio } }).then(function(data) {
 
 
 
-        $scope.exbeneficiarios = data;
+        $scope.exbeneficiarios = data.data;
 
 
     })
@@ -2372,13 +2542,17 @@ var logueo = angular.module('logueo', ['ngMaterial']);
 
 
 
-logueo.controller('login', function($scope, $http, $window, $mdToast) {
+logueo.controller('login', function($scope, $http, $window, $mdToast,$sce) {
 
     var use = $scope;
 
 
-
-
+$http.get('/captcha').then(function(data){
+   $scope.svg = $sce.trustAsHtml(data.data);
+    
+})
+$scope.bloqueado = false;
+$scope.respuestaCorrecta = false;
 
     $scope.showSimpleToast = function() {
 
@@ -2417,28 +2591,121 @@ logueo.controller('login', function($scope, $http, $window, $mdToast) {
             .hideDelay(3000)
         );
     }
+        $scope.showSimpleToast5 = function() {
+
+        $mdToast.show(
+            $mdToast.simple()
+            .textContent('USUARIO BLOQUEADO')
+            .hideDelay(3000)
+        );
+    }
+
+
 
     use.xxx = function() {
 
-        $http.get('/login', { params: { user: $scope.usuario, contrasena: $scope.contrasena } })
+        $http.get('/login', { params: { user: $scope.usuario, contrasena: $scope.contrasena, captcha: $scope.captcha } })
             .then(function(response) {
+                console.log(response);
                 if (response.data == 'clave') {
                     $scope.showSimpleToast();
                 } else if (response.data == 'error'){
 
                     $scope.showSimpleToast4();
+                }else if (response.data == 1){
+
+                    $scope.showSimpleToast5();
+                    $scope.bloqueado = true;
                 }
 
 
-                else {
+                else if(response.data.primerLogueo == true){
 
                     $scope.showSimpleToast3();
+                    $window.location.href = 'dashboard#/perfilInicio'
+                }
+
+                  else if(response.data.primerLogueo == false){
+
+                    $scope.showSimpleToast3();
+                    $scope.bloqueado = false;
                     $window.location.href = 'dashboard#/'
+                }
+                else if(response.data == 10){
+                    alert('Catpcha erroneo');
+                    $http.get('/captcha').then(function(data){
+   $scope.svg = $sce.trustAsHtml(data.data);
+    
+})
                 }
 
 
             })
     }
+
+
+use.desbloquear = function(){
+
+
+
+
+/*
+    $http.get('/desbloquear', {params: { user: $scope.usuario}}).then(function(response){
+
+        console.log(response);
+
+    })*/
+
+}
+
+use.consultarPregunta = function(){
+
+    $http.get('/consultarPregunta',{params:{user: $scope.usuario}}).then(function(response){
+
+
+        $scope.pregunta = response.data.pregunta;
+        $scope.preguntaEncontrada = true;
+
+})
+}
+
+use.consultarRespuesta = function(){
+
+$http.get('/compararRespuestas',{params:{user: $scope.usuario, respuesta: $scope.respuesta}}).then(function(response){
+
+ 
+  if(response.data.codigo == 1){
+    $scope.respuestaCorrecta = true;
+    $scope.desactivar = true;
+    $scope.idGlobal = response.data.ide;
+
+  }else if(response.data.codigo == "2"){
+    alert("Respuesta secreta erronea");
+  }else if(response.data.codigo == "5"){
+    alert("Este usuario a superado el limite de intentos para cambiar su contraseña.");
+  }
+
+
+})
+
+}
+
+use.cambiarContrasena = function(){
+
+    console.log($scope.contrasenaNueva)
+    $http.get('/cambiarContrasena',{params:{contrasena:$scope.contrasenaNueva, ide: $scope.idGlobal}}).then(function(response){
+
+        if(response.data == 1){
+            alert("Contraseña cambiada satisfactoriamente.")
+        }else{
+            alert("Problea con el cambio")
+        }
+
+
+    });
+
+}
+
 
 });
 
@@ -2466,8 +2733,8 @@ app.controller('reportesGlobal', function($http) {
 
 
         comedor = $scope.comedor
-        $http.get('/beneficiariosC', { params: { comedor: $scope.comedor } }).success(function(data) {
-            $scope.beneficiarios = data;
+        $http.get('/beneficiariosC', { params: { comedor: $scope.comedor } }).then(function(data) {
+            $scope.beneficiarios = data.data;
 
             var arreglo = [];
             var arreglomayor = [];
@@ -2484,13 +2751,6 @@ app.controller('reportesGlobal', function($http) {
                                 [{ text: 'Nombre', style: 'header' }, { text: 'Apellido', style: 'header' },
                                     { text: 'Pnf', style: 'header' }, { text: 'Comedor', style: 'header' }
                                 ],
-
-
-
-
-
-
-
 
                             ]
                         }

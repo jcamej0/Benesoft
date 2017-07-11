@@ -1,4 +1,6 @@
+var compress = require('compression');
 var express = require('express');
+var svgCaptcha = require('svg-captcha');
 var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
@@ -8,18 +10,41 @@ var mongoose = require('mongoose');
 var routes = require('./routes/index');
 var users = require('./routes/users');
 var Usuario = require('./model/usuario').Usuario;
+var EdicionLog = require('./model/edicionLog').Edicion;
 var Beneficiarios = require('./model/beneficiarios').Beneficiario;
 var Preparaduria = require('./model/preparaduria').Preparaduria;
+var eliminarLog = require('./model/eliminarLog').Eliminar;
+var Logueo = require('./model/logueo').Logueo;
 var Ayudantia = require('./model/ayudantia').Ayudantia;
 var Comedor = require('./model/comedor').Comedor;
 var Expediente = require('./model/expedientes').Expedientes;
 var session = require('express-session');
+var backup = require('mongodb-backup');
+var bitacora = require('./model/bitacora').Bitacora;
 
 var app = express();
+app.use(compress());
+app.use(express.static(__dirname + '/public'));
 
-/*127.0.0.1*/
+
 mongoose.connect("mongodb://localhost/bienestar");
 
+app.get('/respaldar',function(req,res){
+    console.log("Funcionado")
+backup({
+    uri: 'mongodb://localhost/bienestar',
+    root: './respaldo',
+    tar: 'respaldo.tar',
+    callback: function (err) {
+        if (err) {
+            console.error(err);
+        } else {
+            console.log('finish');
+            res.send('1');
+        }
+    },
+});
+})
 
 
 // view engine setup
@@ -32,76 +57,14 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({ secret: 'secreto' }));
-
 app.use('/', routes);
 app.use('/users', users);
 
-app.listen(3000, '0.0.0.0', function() {
-   
-});
-app.get('/vistas/:name', function(req, res) {
-
-    var name = req.params.name;
-    res.render('vistas/' + name);
+app.listen(3000, '0.0.0.0', function() {  });
 
 
-})
 
-app.get('/vistas/PanelControl/:name', function(req, res) {
-
-    var name = req.params.name;
-    res.render('vistas/PanelControl/' + name);
-
-
-})
-app.get('/vistas/Academica/:name', function(req, res) {
-
-    var name = req.params.name;
-    res.render('vistas/Academica/' + name);
-
-
-})
-
-app.get('/vistas/Deporte/:name', function(req, res) {
-
-    var name = req.params.name;
-
-    res.render('vistas/Deporte/' + name);
-})
-
-
-app.get('/vistas/Discapacidad/:name', function(req, res) {
-
-    var name = req.params.name;
-
-    res.render('vistas/Discapacidad/' + name);
-})
-
-
-app.get('/vistas/SocialCritica/:name', function(req, res) {
-
-    var name = req.params.name;
-
-    res.render('vistas/SocialCritica/' + name);
-})
-
-
-app.get('/vistas/Comedor/:name', function(req, res) {
-
-    var name = req.params.name;
-
-    res.render('vistas/Comedor/' + name);
-})
-
-
-app.get('/vistas/PreparaduriaAyudantia/:name', function(req, res) {
-
-    var name = req.params.name;
-
-    res.render('vistas/PreparaduriaAyudantia/' + name);
-})
 
 
 
@@ -131,6 +94,14 @@ app.get('/consultaInfo', function(req, res) {
 
 })
 
+app.get('/captcha',function(req,res){
+var captcha = svgCaptcha.create();
+    req.session.captcha = captcha.text;
+    
+    console.log(req.session.captcha)
+    res.set('Content-Type', 'image/svg+xml');
+    res.status(200).send(captcha.data);
+})
 
 //Aqui consulto info de alguien del comedor
 app.get('/consultaInfoComedor', function(req, res) {
@@ -234,6 +205,17 @@ app.get('/consultarPanelUsuarios', function(req, res) {
 
 })
 
+app.get('/consultarModificaciones',function(req,res){
+
+    EdicionLog.find(function(err,respuesta){
+
+        res.send(respuesta);
+
+    })
+
+
+})
+
 //Aqui agrego a nuevos Usuarios al SISTEMA.
 app.post('/agregarUsuario', function(req, res) {
 
@@ -242,7 +224,9 @@ app.post('/agregarUsuario', function(req, res) {
         nombre: req.body.nombres,
         user: req.body.user,
         contrasena: req.body.pass,
-        tipo: req.body.tipo
+        tipo: req.body.tipo,
+        pregunta: req.body.pregunta,
+        respuesta: req.body.respuesta
     })
 
 
@@ -269,21 +253,23 @@ app.post('/actualizarUsuario', function(req, res) {
         update = {
 
 
-            contrasena: bcrypt.hashSync(req.body.pass),
+            contrasena: req.body.pass,
         }
     } else {
         update = {
 
-            contrasena: bcrypt.hashSync(req.body.pass),
+            contrasena: req.body.pass,
             tipo: req.body.tipo
         }
     }
 
 
 
+    Usuario.hasheoContrasena(update.contrasena,function(pass,cb){
 
+        update.contrasena = pass;
 
-    Usuario.findByIdAndUpdate(id, update, function(err, resultado) {
+            Usuario.findByIdAndUpdate(id, update, function(err, resultado) {
 
         if (err) {
             console.log('Error actualizando');
@@ -293,6 +279,12 @@ app.post('/actualizarUsuario', function(req, res) {
 
 
     });
+
+
+    })
+
+
+
 
 
 })
@@ -393,19 +385,72 @@ app.post('/actualizar', function(req, res) {
 
     };
 
+     var ip = (req.headers['x-forwarded-for'] ||
+                req.connection.remoteAddress ||
+                req.socket.remoteAddress ||
+                req.connection.socket.remoteAddress).split(",")[0];
+
+
+
+    var audit = [];
+    var nombreBeneficiario;
+
+    Beneficiarios.findById(id,function(err,result){
+
+        result = result.toObject();
+        nombreBeneficiario = result['nombres']+result['apellidos'];
+        var a = result;
+        var dateTwo =  new Date(update.fecnac);
+var updated = update;
+
+    updated['fecnac']    = dateTwo;
+    updated['fecnac']    =     updated['fecnac'].   getTime();
+    result['fecnac']   =    result['fecnac'].     getTime();
+
+
+
+        for(var r  in updated){
+
+
+            if(updated[r] != result[r]){
+
+                    audit.push(r);
+            }
+        }
+
+
+                var xe = new bitacora({
+                modificacion: "Editó a",
+                beneficiario: req.body.nombres + req.body.apellidos,
+                usuario: req.session.nivel.nombre,
+                ip: ip,
+                cedula: req.body.cedula,
+                beneficio: result.beneficio,
+                ide: req.session.ide,
+
+            })
+                        xe.save();
+
+    });
 
     Beneficiarios.findByIdAndUpdate(id, update, function(err, resultado) {
 
-           if (err) {
+       if (err) {
             console.log('Error actualizando');
         }else{
 
-            
-
         res.send(resultado);
+        var editado = {
+            modificaciones: audit,
+            usuario: req.body.modificadoPor,
+            beneficiario: nombreBeneficiario
+        }
+        var x = new EdicionLog(editado);
+        x.save();
+
+
     }
     })
-
 
 
 })
@@ -417,7 +462,6 @@ app.post('/actualizarAyudantia', function(req, res) {
 
 
     var id = req.body._id;
-
     update = {
         nombres: req.body.nombres,
         apellidos: req.body.apellidos,
@@ -508,6 +552,55 @@ app.post('/actualizarAyudantia', function(req, res) {
 
     };
 
+             var ip = (req.headers['x-forwarded-for'] ||
+                req.connection.remoteAddress ||
+                req.socket.remoteAddress ||
+                req.connection.socket.remoteAddress).split(",")[0];
+        var xe = new bitacora({
+                modificacion: "Modificó a",
+                beneficiario: req.body.nombres +' ' + req.body.apellidos,
+                usuario: req.session.nivel.nombre,
+                ip: ip,
+                cedula: req.body.cedula,
+                ide: req.session.ide,
+                beneficio: req.body.beneficio
+        
+
+
+            })
+
+
+    var audit = [];
+    var nombreBeneficiario;
+
+    Ayudantia.findById(id,function(err,result){
+
+        result = result.toObject();
+        nombreBeneficiario = result['nombres']+result['apellidos'];
+        var a = result;
+        var dateOne =  new Date(update.fecinicio);
+        var dateTwo =  new Date(update.fecnac);
+var updated = update;
+
+    updated['fecinicio'] = dateOne;
+    updated['fecnac']    = dateTwo;
+    updated['fecinicio'] = updated['fecinicio'].    getTime();
+    updated['fecnac']    =     updated['fecnac'].   getTime();
+    result['fecinicio'] =  result['fecinicio'].   getTime();
+    result['fecnac']   =    result['fecnac'].     getTime();
+
+
+
+        for(var r  in updated){
+
+
+            if(updated[r] != result[r]){
+
+                    audit.push(r);
+            }
+        }
+
+    });
 
     Ayudantia.findByIdAndUpdate(id, update, function(err, resultado) {
 
@@ -515,9 +608,17 @@ app.post('/actualizarAyudantia', function(req, res) {
             console.log('Error actualizando');
         }else{
 
-            
-
+            console.log(resultado['fecinicio'])
         res.send(resultado);
+        var editado = {
+            modificaciones: audit,
+            usuario: req.body.modificadoPor,
+            beneficiario: nombreBeneficiario
+        }
+        var x = new EdicionLog(editado);
+        xe.save();
+        x.save();
+
     }
     })
 
@@ -624,16 +725,72 @@ app.post('/actualizarPreparaduria', function(req, res) {
 
     };
 
+     var ip = (req.headers['x-forwarded-for'] ||
+                req.connection.remoteAddress ||
+                req.socket.remoteAddress ||
+                req.connection.socket.remoteAddress).split(",")[0];
+        var xe = new bitacora({
+                modificacion: "Editó a",
+                beneficiario: req.body.nombres +' ' + req.body.apellidos,
+                usuario: req.session.nivel.nombre,
+                ip: ip,
+                cedula: req.body.cedula,
+                ide: req.session.ide,
+                beneficio: 'Preparaduria'
+        
+
+
+            })
+
+    var audit = [];
+    var nombreBeneficiario;
+
+    Preparaduria.findById(id,function(err,result){
+
+        result = result.toObject();
+        nombreBeneficiario = result['nombres']+result['apellidos'];
+        var a = result;
+        var dateOne =  new Date(update.fecinicio);
+        var dateTwo =  new Date(update.fecnac);
+        var updated = update;
+         updated['fecinicio'] = dateOne;
+         updated['fecnac']    = dateTwo;
+         updated['fecinicio'] = updated['fecinicio'].    getTime();
+         updated['fecnac']    =     updated['fecnac'].   getTime();
+         result['fecinicio'] =  result['fecinicio'].   getTime();
+         result['fecnac']   =    result['fecnac'].     getTime();
+
+
+
+        for(var r  in updated){
+
+
+            if(updated[r] != result[r]){
+
+                    audit.push(r);
+            }
+        }
+
+
+
+    });
 
     Preparaduria.findByIdAndUpdate(id, update, function(err, resultado) {
 
-          if (err) {
+       if (err) {
             console.log('Error actualizando');
         }else{
 
-            
-
         res.send(resultado);
+        var editado = {
+            modificaciones: audit,
+            usuario: req.body.modificadoPor,
+            beneficiario: nombreBeneficiario
+        }
+        var x = new EdicionLog(editado);
+        xe.save();
+        x.save();
+
     }
     })
 
@@ -739,15 +896,56 @@ app.post('/actualizarComedor', function(req, res) {
     };
 
 
+         var ip = (req.headers['x-forwarded-for'] ||
+                req.connection.remoteAddress ||
+                req.socket.remoteAddress ||
+                req.connection.socket.remoteAddress).split(",")[0];
+        var xe = new bitacora({
+                modificacion: "Modificó a",
+                beneficiario: req.body.nombres + ' ' + req.body.apellidos,
+                usuario: req.session.nivel.nombre,
+                ip: ip,
+                cedula: req.body.cedula,
+                ide: req.session.ide,
+                beneficio: req.body.beneficio
+        
+
+
+            })
+    
+    var audit = [];
+    var nombreBeneficiario;
+
+    Comedor.findById(id,function(err,result){
+
+        nombreBeneficiario = result['nombres']+result['apellidos'];
+        for(var r  in update){
+
+            if(update[r] != result[r]){
+                console.log(r);
+
+                audit.push(r);
+            }
+        }
+
+    });
+
     Comedor.findByIdAndUpdate(id, update, function(err, resultado) {
 
-          if (err) {
+       if (err) {
             console.log('Error actualizando');
         }else{
 
-            
-
         res.send(resultado);
+        var editado = {
+            modificaciones: audit,
+            usuario: req.body.modificadoPor,
+            beneficiario: nombreBeneficiario
+        }
+        var x = new EdicionLog(editado);
+        xe.save();
+        x.save();
+
     }
     })
 
@@ -1275,19 +1473,81 @@ app.delete('/eliminartodoexpediente', function(req, res) {
 //Aqui elimino a un estudiante de algun beneficio
 app.delete('/eliminar', function(req, res) {
 
-    Beneficiarios.find({ cedula: req.query.cedula }).remove(function(err, resultado) {
+    var ci = req.query.cedula;
+    
+     var ip = (req.headers['x-forwarded-for'] ||
+                req.connection.remoteAddress ||
+                req.socket.remoteAddress ||
+                req.connection.socket.remoteAddress).split(",")[0];
 
-        res.send(resultado);
-    })
+       
+        Beneficiarios.find({cedula : ci },function(err,resultadox){
+
+
+            var eliminado = new eliminarLog({
+            nombres: GLOBAL.nombre,
+            idBeneficiado: req.query.cedula,
+            Beneficio: resultadox[0].beneficio,
+            NombreBeneficiado: resultadox[0].nombres
+
+        })
+
+                    var x = new bitacora({
+                modificacion: "Eliminó a",
+                beneficiario: resultadox[0].nombres + ' ' + resultadox[0].apellidos,
+                usuario: req.session.nivel.nombre,
+                ip: ip,
+                cedula: resultadox[0].cedula,
+                ide: req.session.ide,
+                beneficio: resultadox[0].beneficio
+        
+
+
+            })
+
+        eliminado.save();
+        x.save();
+        
+
+        Beneficiarios.find({ cedula: ci }).remove(function(err, resultado) {   res.send(resultado);  });
+        })
+   
+
 
 });
 
 //Elimino a alguien del comedor
 app.delete('/eliminarComedor', function(req, res) {
 
-    Comedor.find({ cedula: req.query.cedula }).remove(function(err, resultado) {
+         var ip = (req.headers['x-forwarded-for'] ||
+                req.connection.remoteAddress ||
+                req.socket.remoteAddress ||
+                req.connection.socket.remoteAddress).split(",")[0];
 
-        res.send(resultado);
+
+    Comedor.find({ cedula: req.query.cedula },function(err,resultado){
+
+
+                var x = new bitacora({
+                modificacion: "Eliminó a",
+                beneficiario: resultado[0].nombres + ' ' + resultado[0].apellidos,
+                usuario: req.session.nivel.nombre,
+                ip: ip,
+                cedula: resultado[0].cedula,
+                ide: req.session.ide,
+                beneficio: 'Comedor'
+
+            });
+                Comedor.remove({cedula: req.query.cedula},function(err){
+                         x.save();
+                })
+               
+
+                res.send(resultado);
+        
+
+
+
     })
 
 });
@@ -1295,9 +1555,35 @@ app.delete('/eliminarComedor', function(req, res) {
 
 app.delete('/eliminarPreparaduria', function(req, res) {
 
-    Preparaduria.find({ cedula: req.query.cedula }).remove(function(err, resultado) {
+         var ip = (req.headers['x-forwarded-for'] ||
+                req.connection.remoteAddress ||
+                req.socket.remoteAddress ||
+                req.connection.socket.remoteAddress).split(",")[0];
 
-        res.send(resultado);
+
+    Preparaduria.find({ cedula: req.query.cedula },function(err,resultado){
+
+
+                var x = new bitacora({
+                modificacion: "Eliminó a",
+                beneficiario: resultado[0].nombres + ' ' + resultado[0].apellidos,
+                usuario: req.session.nivel.nombre,
+                ip: ip,
+                cedula: resultado[0].cedula,
+                ide: req.session.ide,
+                beneficio: 'Preparaduria'
+
+            });
+                Preparaduria.remove({cedula: req.query.cedula},function(err){
+                         x.save();
+                })
+               
+
+                res.send(resultado);
+        
+
+
+
     })
 
 });
@@ -1306,10 +1592,37 @@ app.delete('/eliminarPreparaduria', function(req, res) {
 
 app.delete('/eliminarAyudantia', function(req, res) {
 
-    Ayudantia.find({ cedula: req.query.cedula }).remove(function(err, resultado) {
+         var ip = (req.headers['x-forwarded-for'] ||
+                req.connection.remoteAddress ||
+                req.socket.remoteAddress ||
+                req.connection.socket.remoteAddress).split(",")[0];
 
-        res.send(resultado);
-    })
+
+    Ayudantia.find({ cedula: req.query.cedula },function(err,resultado){
+
+
+                var x = new bitacora({
+                modificacion: "Eliminó a",
+                beneficiario: resultado[0].nombres + ' ' + resultado[0].apellidos,
+                usuario: req.session.nivel.nombre,
+                ip: ip,
+                cedula: resultado[0].cedula,
+                ide: req.session.ide,
+                beneficio: 'Ayudantia'
+
+            });
+                Ayudantia.remove({cedula: req.query.cedula},function(err){
+                         x.save();
+                })
+               
+
+                res.send(resultado);
+        
+
+
+
+
+});
 
 });
 //Aqui elimino a un USUARIO
@@ -1329,9 +1642,33 @@ app.delete('/eliminarUsuario', function(req, res) {
 //Eliminar un estudiante del expediente
 app.delete('/eliminarExpediente', function(req, res) {
 
-    Expediente.find({ cedula: req.query.cedula }).remove(function(err, resultado) {
+    Expediente.find({ cedula: req.query.cedula },function(err, resultado) {
 
-        res.send(resultado);
+                     var ip = (req.headers['x-forwarded-for'] ||
+                req.connection.remoteAddress ||
+                req.socket.remoteAddress ||
+                req.connection.socket.remoteAddress).split(",")[0];
+
+
+
+
+
+                var xe= new bitacora({
+                modificacion: "Eliminó expediente",
+                beneficiario: resultado[0].nombres + ' ' + resultado[0].apellidos,
+                usuario: req.session.nivel.nombre,
+                ip: ip,
+                cedula: resultado[0].cedula,
+                ide: req.session.ide,
+                beneficio: resultado[0].beneficio
+
+            });
+
+                xe.save();
+               Expediente.find({cedula: req.query.cedula}).remove(function(err){
+                    res.send(resultado);
+               })
+
     })
 
 });
@@ -1339,50 +1676,236 @@ app.delete('/eliminarExpediente', function(req, res) {
 
 app.get('/login', function(req, res, next) {
 
-    Usuario.findOne({ user: req.query.user}, function(err, user) {
-        if(user == null){
+    var pass = req.query.contrasena;
+    var user = req.query.user;
+    var captcha = req.query.captcha;
 
-            res.send('error');
+    if(captcha != req.session.captcha){
+        res.send('10');
+    }else{
+
+
+
+       Usuario.autenticar(user,pass,function(err, respuesta,cb){
+        console.log(cb);
+        if(respuesta == 1){
+            res.send('1');
         }
-        else if(user){
 
+           else if(cb){
 
+                if(cb.primerLogueo == true){
+                    req.session.primerlogueo = true;
+                    req.session.ide = cb['_id'];
+                }
+                req.session.ide = cb['_id'];
+                req.session.login = true;
+                req.session.nivel = cb;
+                var ip = (req.headers['x-forwarded-for'] ||
+                req.connection.remoteAddress ||
+                req.socket.remoteAddress ||
+                req.connection.socket.remoteAddress).split(",")[0];
+                var fecha = new Date();
+                var log = new Logueo({
+                nombres:cb.nombre,
+                ip: ip,
+                idUsuario: cb["_id"],
+                fechaDos: fecha.toLocaleDateString("en-US")
+            })
 
+            global.nombre = cb;
+            log.save();
+            res.send(cb);
+           }
 
-        user.comparePassword(req.query.contrasena , function(err, isMatch) {
- 
-        if(isMatch == true){
-
-        req.session.login = true;
-        req.session.nivel = user;
-        res.send(user);
-
-        }else{
-
+           else if(respuesta == 2){
             res.send('clave');
-        }
+           }
+           else if(respuesta == 3){
+                res.send('error');
+           }
+            
 
-        });
+        })
 
-        }
+}
 
-
-
-
-    });
 
 });
 
 
+app.get('/desbloquear',function(req,res,next){
+
+    var usuario = req.query.ide;
+
+    Usuario.desbloquearIde(usuario,function(err,cb){
+
+        if(cb == 1){
+            res.send('1');
+        }else{
+            res.send('2');
+        }
+
+
+    })
+
+
+})
+
+
+app.get('/desbloquearRespuesta',function(req,res,next){
+
+    var usuario = req.query.ide;
+
+    Usuario.desbloquearIdeRespuesta(usuario,function(err,cb){
+
+        if(cb == 1){
+            res.send('1');
+        }else{
+            res.send('2');
+        }
+
+
+    })
+
+
+})
+
+app.get('/consultarPregunta',function(req,res,next){
+
+    var usuario = req.query.user;
+
+    Usuario.consultaPregunta(usuario,function(err,cb){
+
+            res.send(cb);
+
+    })
+
+
+})
+
+app.get('/compararRespuestas',function(req,res,next){
+
+    var usuario = req.query.user;
+    var respuesta = req.query.respuesta;
+
+    Usuario.respuestaConsulta(usuario,respuesta,function(err,ide,cb){
+
+       if(cb == 1){
+        res.send({codigo: 1 , ide: ide});
+       }else if(cb == 2){
+        res.send({codigo:2});
+       }else if(cb == 5){
+        res.send({codigo:5})
+       }
+
+
+    })
+
+
+})
+
+app.get('/cambiarContrasena',function(req,res,next){
+  
+    Usuario.hasheoContrasena(req.query.contrasena,function(pass,cb){
+
+        console.log("Esto es el pass",pass)
+        var update = {
+            contrasena: pass
+        }
+        Usuario.findByIdAndUpdate(req.query.ide,update,function(err,resultado){
+            if(resultado){
+                Usuario.desbloquearIntentos(resultado.user,function(err,cb){
+
+                    console.log(cb)
+                    if(cb == 1){
+                        res.send("1");
+                    }
+                })
+            }
+
+
+        })
+    })
+
+})
+
+
+app.get('/primeraModificacion',function(req,res,ext){
+
+      
+        Usuario.hasheoContrasena(req.query.contrasena,function(pass,cb){
+
+   
+        var update = {
+            contrasena: pass
+        }
+
+
+
+                update.pregunta = req.query.pregunta;
+                Usuario.hasheoRespuesta(req.query.respuesta,function(respuesta,cb){
+                    update.respuesta = respuesta;
+                     Usuario.findByIdAndUpdate(req.query.ide,update,function(err,resultado){
+                        console.log("El resultado",resultado)
+                        resultado.quitarLogueo(resultado,function(err,respuesta){
+                            res.send('1')
+
+                  })
+
+                })
+            })
+       
+
+  
+    
+})
+})
+
+app.get('/cambiarPregunta',function(req,res,ext){
+
+
+
+        Usuario.hasheoPregunta(req.query.pregunta,function(pregunta,cb){
+
+               var  update ={
+                    pregunta:pregunta
+               }
+                Usuario.hasheoRespuesta(req.query.respuesta,function(respuesta,cb){
+                    update.respuesta = respuesta;
+                     Usuario.findByIdAndUpdate(req.query.ide,update,function(err,resultado){
+                        console.log("El resultado",resultado)
+                        resultado.quitarLogueo(resultado,function(err,respuesta){
+                            res.send('1')
+
+                  })
+
+                })
+            })
+        })
+
+  
+    
+})
+
+
+
+
 //Aqui entro al sistema y el menu se adapta a los niveles de usuario
 app.get('/dashboard', function(req, res) {
-
     if (!req.session.login) {
 
         res.send('ERROR')
-    } else {
+    } else if (req.session.primerlogueo == true){
 
-        res.render('dashboard', { data: { nivel: req.session.nivel.tipo }, data2: { nombre: req.session.nivel.nombre } });
+        res.render('dashboard', { data: { nivel: req.session.nivel.tipo }, data2: { nombre: req.session.nivel.nombre }, data3: {logueo: true}, data4: {ide: req.session.ide} });
+
+    }
+
+
+    else {
+
+        res.render('dashboard', { data: { nivel: req.session.nivel.tipo }, data2: { nombre: req.session.nivel.nombre }, data4: {ide: req.session.ide}, data3:{logueo: false}});
     }
 
 })
@@ -1404,7 +1927,7 @@ app.post('/agregarComedor', function(req, res) {
         sexo: req.body.sexo,
         estado: req.body.estado,
         municipio: req.body.municipio,
-        fecnac: req.body.fecnac,
+        fecnac: new Date(req.body.fecnac),
         residencia: req.body.residencia,
         comedor: req.body.comedor,
         civil: req.body.civil,
@@ -1480,17 +2003,35 @@ app.post('/agregarComedor', function(req, res) {
 
 
 
-    });
+        });
 
 
+         var ip = (req.headers['x-forwarded-for'] ||
+                req.connection.remoteAddress ||
+                req.socket.remoteAddress ||
+                req.connection.socket.remoteAddress).split(",")[0];
+            var xe = new bitacora({
+                modificacion: "Registró a",
+                beneficiario: req.body.nombres + ' ' + req.body.apellidos,
+                usuario: req.session.nivel.nombre,
+                ip: ip,
+                cedula: req.body.cedula,
+                ide: req.session.ide,
+                beneficio: req.body.beneficio
+        
 
 
-    user.save(function(err) {
-        if (err) res.send("ERROR")
+            })
+
+
+        user.save(function(err) {
+            if (err) res.send("ERROR")
         else {
+            xe.save();
             res.send("registrado");
+
         }
-    })
+        })
 
 
 
@@ -1514,7 +2055,7 @@ app.post('/agregarPreparaduria', function(req, res) {
         sexo: req.body.sexo,
         estado: req.body.estado,
         municipio: req.body.municipio,
-        fecnac: req.body.fecnac,
+        fecnac: new Date(req.body.fecnac),
         fecinicio: req.body.fecinicio,
         residencia: req.body.residencia,
         depasignado: req.body.depasignado,
@@ -1594,11 +2135,28 @@ app.post('/agregarPreparaduria', function(req, res) {
     });
 
 
+         var ip = (req.headers['x-forwarded-for'] ||
+                req.connection.remoteAddress ||
+                req.socket.remoteAddress ||
+                req.connection.socket.remoteAddress).split(",")[0];
+        var xe = new bitacora({
+                modificacion: "Registró a",
+                beneficiario: req.body.nombres + ' ' + req.body.apellidos,
+                usuario: req.session.nivel.nombre,
+                ip: ip,
+                cedula: req.body.cedula,
+                ide: req.session.ide,
+                beneficio: req.body.beneficio
+        
 
+
+            })
 
     user.save(function(err) {
         if (err) res.send("ERROR")
         else {
+
+            xe.save();
             res.send("registrado");
         }
     })
@@ -1636,8 +2194,8 @@ app.post('/agregarAyudantia', function(req, res) {
         sexo: req.body.sexo,
         estado: req.body.estado,
         municipio: req.body.municipio,
-        fecnac: req.body.fecnac,
-        fecinicio: req.body.fecinicio,
+        fecnac: new Date(req.body.fecnac),
+        fecinicio: new Date(req.body.fecinicio),
         residencia: req.body.residencia,
         depasignado: req.body.depasignado,
         civil: req.body.civil,
@@ -1716,11 +2274,28 @@ app.post('/agregarAyudantia', function(req, res) {
     });
 
 
+             var ip = (req.headers['x-forwarded-for'] ||
+                req.connection.remoteAddress ||
+                req.socket.remoteAddress ||
+                req.connection.socket.remoteAddress).split(",")[0];
+        var xe = new bitacora({
+                modificacion: "Registró a",
+                beneficiario: req.body.nombres +' ' + req.body.apellidos,
+                usuario: req.session.nivel.nombre,
+                ip: ip,
+                cedula: req.body.cedula,
+                ide: req.session.ide,
+                beneficio: req.body.beneficio
+        
+
+
+            })
 
 
     user.save(function(err) {
         if (err) res.send("ERROR")
         else {
+            xe.save();
             res.send("registrado");
         }
     })
@@ -1751,7 +2326,7 @@ app.post('/agregar', function(req, res) {
         sexo: req.body.sexo,
         estado: req.body.estado,
         municipio: req.body.municipio,
-        fecnac: req.body.fecnac,
+        fecnac: new Date(req.body.fecnac),
         correo: req.body.correo,
         facebook: req.body.facebook,
         twitter: req.body.twitter,
@@ -1832,13 +2407,39 @@ app.post('/agregar', function(req, res) {
 
     });
 
+     var ip = (req.headers['x-forwarded-for'] ||
+                req.connection.remoteAddress ||
+                req.socket.remoteAddress ||
+                req.connection.socket.remoteAddress).split(",")[0];
+        var x = new bitacora({
+                modificacion: "Registró a",
+                beneficiario: req.body.nombres + req.body.apellidos,
+                usuario: req.session.nivel.nombre,
+                ip: ip,
+                cedula: req.body.cedula,
+                ide: req.session.ide,
+                beneficio: req.body.beneficio
+        
 
+
+            })
 
 
     user.save(function(err) {
         if (err) res.send("ERROR")
         else {
-            res.send("registrado");
+    
+
+            x.save(function(err){
+                if(err) res.send("ERROR")
+                    else{
+                          res.send("registrado");
+
+                    }
+              
+            })
+                    
+
         }
     })
 
@@ -1971,12 +2572,28 @@ app.post('/moverExpediente', function(req, res) {
 
 
     });
+     var ip = (req.headers['x-forwarded-for'] ||
+                req.connection.remoteAddress ||
+                req.socket.remoteAddress ||
+                req.connection.socket.remoteAddress).split(",")[0];
+
+                    var x = new bitacora({
+                modificacion: "Movió a expediente",
+                beneficiario: req.body.nombres + ' ' + req.body.apellidos,
+                usuario: req.session.nivel.nombre,
+                ip: ip,
+                cedula: req.body.cedula,
+                ide: req.session.ide,
+                beneficio: req.body.beneficio
+        
 
 
+            })
 
     expediente.save(function(err) {
         if (err) res.send("ERROR")
         else {
+            x.save();
             res.send("Movido a expedientes");
         }
     })
@@ -2083,15 +2700,35 @@ app.post('/moverExpedienteComedor', function(req, res) {
 
 
 
+
+         var ip = (req.headers['x-forwarded-for'] ||
+                req.connection.remoteAddress ||
+                req.socket.remoteAddress ||
+                req.connection.socket.remoteAddress).split(",")[0];
+
+
+
+
+                var x = new bitacora({
+                modificacion: "Movió a expediente",
+                beneficiario: req.body.nombres + ' ' + req.body.apellidos,
+                usuario: req.session.nivel.nombre,
+                ip: ip,
+                cedula: req.body.cedula,
+                ide: req.session.ide,
+                beneficio: 'Comedor'
+
+            });
+
+
+
     expediente.save(function(err) {
         if (err) res.send("ERROR")
         else {
+            x.save();
             res.send("Movido a expedientes");
         }
     })
-
-
-
 
 });
 
@@ -2195,11 +2832,28 @@ app.post('/moverExpedienteAyudantia', function(req, res) {
 
     });
 
+             var ip = (req.headers['x-forwarded-for'] ||
+                req.connection.remoteAddress ||
+                req.socket.remoteAddress ||
+                req.connection.socket.remoteAddress).split(",")[0];
+        var xe = new bitacora({
+                modificacion: "Movió a expediente",
+                beneficiario: req.body.nombres +' ' + req.body.apellidos,
+                usuario: req.session.nivel.nombre,
+                ip: ip,
+                cedula: req.body.cedula,
+                ide: req.session.ide,
+                beneficio: req.body.beneficio
+        
+
+
+            })
 
 
     expediente.save(function(err) {
         if (err) res.send("ERROR")
         else {
+            xe.save();
             res.send("Movido a expedientes");
         }
     })
@@ -2309,10 +2963,27 @@ app.post('/moverExpedientePreparaduria', function(req, res) {
     });
 
 
+         var ip = (req.headers['x-forwarded-for'] ||
+                req.connection.remoteAddress ||
+                req.socket.remoteAddress ||
+                req.connection.socket.remoteAddress).split(",")[0];
+        var xe = new bitacora({
+                modificacion: "Movió a expediente",
+                beneficiario: req.body.nombres +' ' + req.body.apellidos,
+                usuario: req.session.nivel.nombre,
+                ip: ip,
+                cedula: req.body.cedula,
+                ide: req.session.ide,
+                beneficio: req.body.beneficio
+        
+
+
+            })
 
     expediente.save(function(err) {
         if (err) res.send("ERROR")
         else {
+            xe.save();
             res.send("Movido a expedientes");
         }
     })
@@ -2420,11 +3091,30 @@ app.post('/moveraBeneficio', function(req, res) {
 
     });
 
+                 var ip = (req.headers['x-forwarded-for'] ||
+                req.connection.remoteAddress ||
+                req.socket.remoteAddress ||
+                req.connection.socket.remoteAddress).split(",")[0];
+
+
+
+
+
+                var xe= new bitacora({
+                modificacion: "Movió a activos",
+                beneficiario: req.body.nombres + ' ' + req.body.apellidos,
+                usuario: req.session.nivel.nombre,
+                ip: ip,
+                cedula: req.body.cedula,
+                ide: req.session.ide,
+                beneficio: req.body.beneficio
+            });
 
 
     user.save(function(err) {
         if (err) res.send("ERROR")
         else {
+            xe.save();
             res.send("Movido a Beneficios!");
         }
     })
@@ -2533,12 +3223,32 @@ app.post('/moveraBeneficioAyudantia', function(req, res) {
 
 
     });
+                 var ip = (req.headers['x-forwarded-for'] ||
+                req.connection.remoteAddress ||
+                req.socket.remoteAddress ||
+                req.connection.socket.remoteAddress).split(",")[0];
+
+
+
+
+
+                var xe= new bitacora({
+                modificacion: "Movió a activos",
+                beneficiario: req.body.nombres + ' ' + req.body.apellidos,
+                usuario: req.session.nivel.nombre,
+                ip: ip,
+                cedula: req.body.cedula,
+                ide: req.session.ide,
+                beneficio: 'Ayudantia'
+
+            });
 
 
 
     user.save(function(err) {
         if (err) res.send("ERROR")
         else {
+            xe.save();
             res.send("Movido a Beneficios!");
         }
     })
@@ -2648,10 +3358,30 @@ app.post('/moveraBeneficioPreparaduria', function(req, res) {
     });
 
 
+                 var ip = (req.headers['x-forwarded-for'] ||
+                req.connection.remoteAddress ||
+                req.socket.remoteAddress ||
+                req.connection.socket.remoteAddress).split(",")[0];
+
+
+
+
+
+                var xe= new bitacora({
+                modificacion: "Movió a activos",
+                beneficiario: req.body.nombres + ' ' + req.body.apellidos,
+                usuario: req.session.nivel.nombre,
+                ip: ip,
+                cedula: req.body.cedula,
+                ide: req.session.ide,
+                beneficio: 'Preparaduria'
+
+            });
 
     user.save(function(err) {
         if (err) res.send("ERROR")
         else {
+            xe.save();
             res.send("Movido a Beneficios!");
         }
     })
@@ -2757,10 +3487,31 @@ app.post('/moveraBeneficioComedor', function(req, res) {
     });
 
 
+             var ip = (req.headers['x-forwarded-for'] ||
+                req.connection.remoteAddress ||
+                req.socket.remoteAddress ||
+                req.connection.socket.remoteAddress).split(",")[0];
+
+
+
+
+
+                var xe= new bitacora({
+                modificacion: "Movió a activos",
+                beneficiario: req.body.nombres + ' ' + req.body.apellidos,
+                usuario: req.session.nivel.nombre,
+                ip: ip,
+                cedula: req.body.cedula,
+                ide: req.session.ide,
+                beneficio: 'Comedor'
+
+            });
+
 
     user.save(function(err) {
         if (err) res.send("ERROR")
         else {
+            xe.save();
             res.send("Movido a Beneficios!");
         }
     })
@@ -2802,7 +3553,7 @@ app.get('/informacion', function(req, res) {
 
 app.get('/informacionayudantia', function(req, res) {
 
-    Ayudantia.where({ beneficio: req.query.beneficio }).count(function(err, resultado) {
+    Ayudantia.where({ beneficio: 'Ayudantia' }).count(function(err, resultado) {
         if (err) res.send("ERROR")
         else {
             var x = resultado.toString();
@@ -3860,6 +4611,93 @@ app.get('/exbeneficiarios', function(req, res) {
 });
 
 
+/*SECCION PARA CONSULTAS DE AUDITORIA */
+
+app.get('/consultarBitacora', function(req, res) {
+
+
+
+ if(req.query.nombre ==  'TODOS'){
+ console.log("Esta 3")
+                bitacora.find({fecha:{"$gte": req.query.fechaInicio, "$lt": req.query.fechaFinal }},function(err, data) {
+                    console.log(data);
+        res.send(data);
+    })
+
+    }else {
+
+
+                bitacora.find({fecha:{"$gte": req.query.fechaInicio, "$lt": req.query.fechaFinal }, ide: req.query.nombre},function(err, data) {
+                    console.log(data);
+        res.send(data);
+
+    })
+
+
+
+}
+
+})
+
+
+
+
+app.get('/consultarLogueo', function(req, res) {
+
+
+    Logueo.find(function(err, data) {
+
+        res.send(data);
+
+
+    });
+
+
+
+})
+
+app.get('/consultarLogueoNombre', function(req, res) {
+
+
+    Logueo.find(({ idUsuario: req.query.ide }), function(err, data) {
+
+        res.send(data);
+
+
+    });
+
+
+
+})
+
+app.get('/consultarLogueoFecha', function(req, res) {
+
+
+    Logueo.find(({ fechaDos: req.query.fecha }), function(err, data) {
+
+        res.send(data);
+
+
+    });
+
+
+
+})
+
+
+app.get('/consultarLogueoFechaNombre', function(req, res) {
+
+
+    Logueo.find(({ fechaDos: req.query.fecha, idUsuario: req.query.ide }), function(err, data) {
+
+        res.send(data);
+
+
+    });
+
+
+
+})
 
 
 

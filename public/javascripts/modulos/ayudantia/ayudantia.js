@@ -17,8 +17,8 @@ app.controller('ayudantiaRegistro', function($scope, $http, $mdToast, $mdDialog,
         nombre = nombre.substr(0, 1).toUpperCase() + nombre.substr(1);
         var apellido = $scope.formulario.apellidos;
         apellido = apellido.substr(0, 1).toUpperCase() + apellido.substr(1);
-        var fecha = $filter('date')($scope.formulario.fecnac, "yyyy-MM-dd")
-        var fecinicio = $filter('date')($scope.formulario.fecinicio, "yyyy-MM-dd")
+        var fecha = new Date($scope.formulario.fecnac);
+        var fecinicio = new Date($scope.formulario.fecinicio);
 
 
         data = {
@@ -142,10 +142,10 @@ app.controller('ayudantiaRegistro', function($scope, $http, $mdToast, $mdDialog,
                 .cancel('Volver')
             $mdDialog.show(confirm).then(function() {
 
-                $http.get('/verificarExpediente', { params: { cedula: data.cedula } }).success(function(respuesta) {
+                $http.get('/verificarExpediente', { params: { cedula: data.cedula } }).then(function(respuesta) {
 
 
-                    if (respuesta == "expediente") {
+                    if (respuesta.data == "expediente") {
 
                         var confirm = $mdDialog.confirm()
                             .parent(angular.element(document.querySelector('#popupContainer')))
@@ -156,9 +156,9 @@ app.controller('ayudantiaRegistro', function($scope, $http, $mdToast, $mdDialog,
                             .cancel('Volver')
                         $mdDialog.show(confirm).then(function() {
 
-                            $http.delete('/eliminarExpediente', { params: { cedula: $scope.formulario.cedula } }).success(function(data) {});
+                            $http.delete('/eliminarExpediente', { params: { cedula: $scope.formulario.cedula } }).then(function(data) {});
 
-                            $http.post('/agregarAyudantia', data).success(function(respuesta) {
+                            $http.post('/agregarAyudantia', data).then(function(respuesta) {
                                 $mdToast.show(
                                     $mdToast.simple()
                                     .textContent('¡Beneficiario Registrado! ')
@@ -172,10 +172,10 @@ app.controller('ayudantiaRegistro', function($scope, $http, $mdToast, $mdDialog,
                     } else {
 
 
-                        $http.post('/agregarAyudantia', data).success(function(respuesta) {
+                        $http.post('/agregarAyudantia', data).then(function(respuesta) {
 
 
-                            if (respuesta == "ERROR") {
+                            if (respuesta.data == "ERROR") {
 
                                 $mdToast.show(
                                     $mdToast.simple()
@@ -183,7 +183,7 @@ app.controller('ayudantiaRegistro', function($scope, $http, $mdToast, $mdDialog,
                                     .position('bottom')
                                     .hideDelay(3000)
                                 );
-                            } else if (respuesta == "registrado") {
+                            } else if (respuesta.data == "registrado") {
 
                                 $mdToast.show(
                                     $mdToast.simple()
@@ -233,11 +233,11 @@ app.controller('ayudantiaRegistro', function($scope, $http, $mdToast, $mdDialog,
 
         } else {
 
-            $http.post('/agregarAyudantia', data).success(function(respuesta) {
+            $http.post('/agregarAyudantia', data).then(function(respuesta) {
 
 
 
-                if (respuesta == "ERROR") {
+                if (respuesta.data == "ERROR") {
 
 
 
@@ -248,7 +248,7 @@ app.controller('ayudantiaRegistro', function($scope, $http, $mdToast, $mdDialog,
                         .position('bottom')
                         .hideDelay(3000)
                     );
-                } else if (respuesta == "registrado") {
+                } else if (respuesta.data == "registrado") {
 
 
                     $mdDialog.show(
@@ -294,11 +294,11 @@ app.controller('consultaAyudantia', function($scope, $http, $mdDialog, $window) 
     $scope.beneficiarios = [];
     $scope.beneficio = 'Ayudantia';
 
-    $http.get('/beneficiariosAyudantia', { params: { beneficio: $scope.beneficio } }).success(function(data) {
+    $http.get('/beneficiariosAyudantia', { params: { beneficio: $scope.beneficio } }).then(function(data) {
 
 
 
-        $scope.beneficiarios = data;
+        $scope.beneficiarios = data.data;
 
 
     })
@@ -308,7 +308,7 @@ app.controller('consultaAyudantia', function($scope, $http, $mdDialog, $window) 
     $scope.eliminar = function(cedula) {
 
 
-        $http.delete('eliminarAyudantia', { params: { cedula: cedula } }).success(function(data) {
+        $http.delete('eliminarAyudantia', { params: { cedula: cedula } }).then(function(data) {
 
 
             $mdDialog.show(
@@ -332,10 +332,10 @@ app.controller('consultaAyudantia', function($scope, $http, $mdDialog, $window) 
     $scope.expedientar = function(cedula) {
 
 
-        $http.get('/consultaInfoAyudantia', { params: { cedula: cedula } }).success(function(data) {
+        $http.get('/consultaInfoAyudantia', { params: { cedula: cedula } }).then(function(data) {
 
 
-            $scope.infobeneficiado = data;
+            $scope.infobeneficiado = data.data;
 
 
             data = {
@@ -433,9 +433,9 @@ app.controller('consultaAyudantia', function($scope, $http, $mdDialog, $window) 
             };
 
 
-            $http.post('/moverExpedienteAyudantia', data).success(function(respuesta) {
+            $http.post('/moverExpedienteAyudantia', data).then(function(respuesta) {
 
-                $http.delete('eliminarAyudantia', { params: { cedula: cedula } }).success(function(data) {
+                $http.delete('eliminarAyudantia', { params: { cedula: cedula } }).then(function(data) {
 
                     $mdDialog.show(
                         $mdDialog.alert()
@@ -470,10 +470,10 @@ app.controller('consultaControlAyudantia', function($scope, $http, $stateParams,
     $scope.cedula = $stateParams.ci;
     $scope.infobeneficiado;
 
-    $http.get('/consultaInfoAyudantia', { params: { cedula: $scope.cedula } }).success(function(data) {
+    $http.get('/consultaInfoAyudantia', { params: { cedula: $scope.cedula } }).then(function(data) {
 
 
-        $scope.infobeneficiado = data;
+        $scope.infobeneficiado = data.data;
 
 
     })
@@ -483,7 +483,7 @@ app.controller('consultaControlAyudantia', function($scope, $http, $stateParams,
 
 
 
-        $http.delete('eliminarAyudantia', { params: { cedula: $scope.cedula } }).success(function(data) {
+        $http.delete('eliminarAyudantia', { params: { cedula: $scope.cedula } }).then(function(data) {
 
             $mdDialog.show(
                 $mdDialog.alert()
@@ -601,9 +601,9 @@ app.controller('consultaControlAyudantia', function($scope, $http, $stateParams,
 
         };
 
-        $http.post('/moverExpedienteAyudantia', data).success(function(respuesta) {
+        $http.post('/moverExpedienteAyudantia', data).then(function(respuesta) {
 
-            $http.delete('eliminarAyudantia', { params: { cedula: $scope.cedula } }).success(function(data) {
+            $http.delete('eliminarAyudantia', { params: { cedula: $scope.cedula } }).then(function(data) {
 
                 $mdDialog.show(
                     $mdDialog.alert()
@@ -630,17 +630,13 @@ app.controller('consultaControlAyudantia', function($scope, $http, $stateParams,
 
 app.controller('modificarAyudantia', function($scope, $http, $stateParams, $mdDialog, $mdToast, $window, $filter) {
 
-
-
     $scope.prueba = $stateParams.code
-    $http.get('/consultaInfoX4', { params: { _id: $stateParams.code } }).success(function(data) {
+    $http.get('/consultaInfoX4', { params: { _id: $stateParams.code } }).then(function(data) {
 
-        $scope.infobeneficiado = data;
-
-        var fecha = $filter('date')($scope.infobeneficiado[0].fecnac, "yyyy-MM-dd")
-        fecha2 = new Date(fecha);
-        var fecinicio = $filter('date')($scope.infobeneficiado[0].fecinicio, "yyyy-MM-dd")
-        fecha3 = new Date(fecinicio);
+        $scope.infobeneficiado = data.data;
+    
+        var fecha2 = new Date($scope.infobeneficiado[0].fecnac);
+        var fecha3 = new Date($scope.infobeneficiado[0].fecinicio);
         $scope.formulario = {
 
             nombre: $scope.infobeneficiado[0].nombres,
@@ -834,12 +830,12 @@ app.controller('modificarAyudantia', function($scope, $http, $stateParams, $mdDi
         };
 
 
-        $http.post('/actualizarAyudantia', $scope.informacion).success(function(respuesta) {
+        $http.post('/actualizarAyudantia', $scope.informacion).then(function(respuesta) {
 
 
 
 
-            if (respuesta=='Error') {
+            if (respuesta.data=='Error') {
 
                   $mdToast.show(
                 $mdToast.simple()
@@ -886,8 +882,8 @@ app.controller('ayudantiaReporte', function($scope, $http) {
 
     $scope.beneficiarios = [];
     $scope.beneficio = 'Ayudantia';
-    $http.get('/beneficiariosAyudantia', { params: { beneficio: $scope.beneficio } }).success(function(data) {
-        $scope.beneficiarios = data;
+    $http.get('/beneficiariosAyudantia', { params: { beneficio: $scope.beneficio } }).then(function(data) {
+        $scope.beneficiarios = data.data;
 
         var arreglo = [];
         var arreglomayor = [];
@@ -982,7 +978,6 @@ app.controller('ayudantiaReporte', function($scope, $http) {
 
 
         $scope.openPdf = function() {
-
             pdfMake.createPdf(docDefinition).open();
         };
 
@@ -1010,87 +1005,87 @@ app.controller('ayudantiaEstadisticas', function($scope, $http, $stateParams, $m
 
 
 
-    $http.get('/informacionayudantia').success(function(data) {
+    $http.get('/informacionayudantia').then(function(data) {
 
-        $scope.totalbeneficiarios = data;
-
-    });
-
-
-    $http.get('/informacion1ayudantia').success(function(data) {
-
-        $scope.totalbeneficiarioshombres = data;
-
-    });
-
-    $http.get('/informacion2ayudantia').success(function(data) {
-
-        $scope.totalbeneficiariosmujeres = data;
+        $scope.totalbeneficiarios = data.data;
 
     });
 
 
-    $http.get('/informacion3ayudantia').success(function(data) {
+    $http.get('/informacion1ayudantia').then(function(data) {
 
-        $scope.totalbeneficiarios3 = data;
+        $scope.totalbeneficiarioshombres = data.data;
+
+    });
+
+    $http.get('/informacion2ayudantia').then(function(data) {
+
+        $scope.totalbeneficiariosmujeres = data.data;
 
     });
 
 
-    $http.get('/informacion4ayudantia').success(function(data) {
+    $http.get('/informacion3ayudantia').then(function(data) {
 
-        $scope.totalbeneficiarios4 = data;
-
-    });
-
-
-
-    $http.get('/informacion5ayudantia').success(function(data) {
-
-        $scope.totalbeneficiarios5 = data;
+        $scope.totalbeneficiarios3 = data.data;
 
     });
 
 
-    $http.get('/informacion6ayudantia').success(function(data) {
+    $http.get('/informacion4ayudantia').then(function(data) {
 
-        $scope.totalbeneficiarios6 = data;
-
-    });
-
-
-    $http.get('/informacion7ayudantia').success(function(data) {
-
-        $scope.totalbeneficiarios7 = data;
-
-    });
-
-
-    $http.get('/informacion8ayudantia').success(function(data) {
-
-        $scope.totalbeneficiarios8 = data;
-
-    });
-
-
-    $http.get('/informacion9ayudantia').success(function(data) {
-
-        $scope.totalbeneficiarios9 = data;
+        $scope.totalbeneficiarios4 = data.data;
 
     });
 
 
 
-    $http.get('/informacion10ayudantia').success(function(data) {
+    $http.get('/informacion5ayudantia').then(function(data) {
 
-        $scope.totalbeneficiarios10 = data;
+        $scope.totalbeneficiarios5 = data.data;
 
     });
 
 
-    $http.get('/informacion11ayudantia').success(function(data) {
+    $http.get('/informacion6ayudantia').then(function(data) {
 
-        $scope.totalbeneficiarios11 = data;
+        $scope.totalbeneficiarios6 = data.data;
+
+    });
+
+
+    $http.get('/informacion7ayudantia').then(function(data) {
+
+        $scope.totalbeneficiarios7 = data.data;
+
+    });
+
+
+    $http.get('/informacion8ayudantia').then(function(data) {
+
+        $scope.totalbeneficiarios8 = data.data;
+
+    });
+
+
+    $http.get('/informacion9ayudantia').then(function(data) {
+
+        $scope.totalbeneficiarios9 = data.data;
+
+    });
+
+
+
+    $http.get('/informacion10ayudantia').then(function(data) {
+
+        $scope.totalbeneficiarios10 = data.data;
+
+    });
+
+
+    $http.get('/informacion11ayudantia').then(function(data) {
+
+        $scope.totalbeneficiarios11 = data.data;
 
     });
 

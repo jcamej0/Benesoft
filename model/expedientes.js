@@ -91,6 +91,7 @@ var schemaBeneficiario = new Schema({
     persona: String,
     comedor: String,
     beneficio: String,
+    copiacedula: Boolean,
     modificadoPor: String,
     persona: String,
     fecinicio: Date,

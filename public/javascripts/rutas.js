@@ -34,9 +34,9 @@ $scope.agregarBeneficiarios = function(){
 
 	console.log(data);
 
-	$http.post('/agregar', data).success(function(respuesta){
+	$http.post('/agregar', data).then(function(respuesta){
 
-		console.log(respuesta);
+		console.log(respuesta.data);
 
 	});
 
@@ -115,11 +115,11 @@ app.controller('consultaSocialCritica',function($scope,$http){
 $scope.beneficiarios = [];
 $scope.beneficio = 'Social Critica';
 
-$http.get('/beneficiarios',{params:{beneficio: $scope.beneficio}} ).success(function(data){
+$http.get('/beneficiarios',{params:{beneficio: $scope.beneficio}} ).then(function(data){
 
 
 	
-	$scope.beneficiarios = data;
+	$scope.beneficiarios = data.data;
 	console.log(data);
 
 }) 

@@ -91,6 +91,7 @@ var schemaAyudantia = new Schema({
     horario: Boolean,
     foto: Boolean,
     civilopiacedula: Boolean,
+    copiacedula: Boolean,
     modificadoPor: String,
     persona: String,
     beneficio: String,

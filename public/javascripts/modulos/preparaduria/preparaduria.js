@@ -17,8 +17,9 @@ app.controller('preparaduriaRegistro', function($scope, $http, $mdToast, $mdDial
         nombre = nombre.substr(0, 1).toUpperCase() + nombre.substr(1);
         var apellido = $scope.formulario.apellidos;
         apellido = apellido.substr(0, 1).toUpperCase() + apellido.substr(1);
-        var fecha = $filter('date')($scope.formulario.fecnac, "yyyy-MM-dd")
-        var fecinicio = $filter('date')($scope.formulario.fecinicio, "yyyy-MM-dd")
+          var fecha = new Date($scope.formulario.fecnac);
+        var fecinicio = new Date($scope.formulario.fecinicio);
+
 
 
         data = {
@@ -117,10 +118,7 @@ app.controller('preparaduriaRegistro', function($scope, $http, $mdToast, $mdDial
 
 
 
-        console.log(data);
-
-
-
+    
 
 
         $scope.status = '  ';
@@ -142,10 +140,10 @@ app.controller('preparaduriaRegistro', function($scope, $http, $mdToast, $mdDial
                 .cancel('Volver')
             $mdDialog.show(confirm).then(function() {
 
-                $http.get('/verificarExpediente', { params: { cedula: data.cedula } }).success(function(respuesta) {
+                $http.get('/verificarExpediente', { params: { cedula: data.cedula } }).then(function(respuesta) {
 
 
-                    if (respuesta == "expediente") {
+                    if (respuesta.data == "expediente") {
 
                         var confirm = $mdDialog.confirm()
                             .parent(angular.element(document.querySelector('#popupContainer')))
@@ -156,9 +154,9 @@ app.controller('preparaduriaRegistro', function($scope, $http, $mdToast, $mdDial
                             .cancel('Volver')
                         $mdDialog.show(confirm).then(function() {
 
-                            $http.delete('/eliminarExpediente', { params: { cedula: $scope.formulario.cedula } }).success(function(data) {});
+                            $http.delete('/eliminarExpediente', { params: { cedula: $scope.formulario.cedula } }).then(function(data) {});
 
-                            $http.post('/agregarPreparaduria', data).success(function(respuesta) {
+                            $http.post('/agregarPreparaduria', data).then(function(respuesta) {
                                 $mdToast.show(
                                     $mdToast.simple()
                                     .textContent('¡Beneficiario Registrado! ')
@@ -172,10 +170,10 @@ app.controller('preparaduriaRegistro', function($scope, $http, $mdToast, $mdDial
                     } else {
 
 
-                        $http.post('/agregarPreparaduria', data).success(function(respuesta) {
+                        $http.post('/agregarPreparaduria', data).then(function(respuesta) {
 
 
-                            if (respuesta == "ERROR") {
+                            if (respuesta.data == "ERROR") {
 
                                 $mdToast.show(
                                     $mdToast.simple()
@@ -183,7 +181,7 @@ app.controller('preparaduriaRegistro', function($scope, $http, $mdToast, $mdDial
                                     .position('bottom')
                                     .hideDelay(3000)
                                 );
-                            } else if (respuesta == "registrado") {
+                            } else if (respuesta.data == "registrado") {
 
                                 $mdToast.show(
                                     $mdToast.simple()
@@ -201,8 +199,7 @@ app.controller('preparaduriaRegistro', function($scope, $http, $mdToast, $mdDial
                                     .ok('Aceptar')
                                 $mdDialog.show(confirm).then(function() {
 
-                                    console.log('Entre aqi');
-
+                            
 
                                     $window.location.href = 'dashboard#/pya'
 
@@ -233,11 +230,11 @@ app.controller('preparaduriaRegistro', function($scope, $http, $mdToast, $mdDial
 
         } else {
 
-            $http.post('/agregarPreparaduria', data).success(function(respuesta) {
+            $http.post('/agregarPreparaduria', data).then(function(respuesta) {
 
 
-                console.log(respuesta);
-                if (respuesta == "ERROR") {
+            
+                if (respuesta.data == "ERROR") {
 
 
 
@@ -248,7 +245,7 @@ app.controller('preparaduriaRegistro', function($scope, $http, $mdToast, $mdDial
                         .position('bottom')
                         .hideDelay(3000)
                     );
-                } else if (respuesta == "registrado") {
+                } else if (respuesta.data == "registrado") {
 
 
                     $mdDialog.show(
@@ -294,12 +291,12 @@ app.controller('consultaPreparaduria', function($scope, $http, $mdDialog, $windo
     $scope.beneficiarios = [];
     $scope.beneficio = 'Preparaduria';
 
-    $http.get('/beneficiariosPreparaduria', { params: { beneficio: $scope.beneficio } }).success(function(data) {
+    $http.get('/beneficiariosPreparaduria', { params: { beneficio: $scope.beneficio } }).then(function(data) {
 
 
-
-        $scope.beneficiarios = data;
-        console.log(data);
+ 
+       $scope.beneficiarios = data.data;
+  
 
     })
 
@@ -308,7 +305,7 @@ app.controller('consultaPreparaduria', function($scope, $http, $mdDialog, $windo
     $scope.eliminar = function(cedula) {
 
 
-        $http.delete('eliminarPreparaduria', { params: { cedula: cedula } }).success(function(data) {
+        $http.delete('eliminarPreparaduria', { params: { cedula: cedula } }).then(function(data) {
 
 
             $mdDialog.show(
@@ -330,12 +327,12 @@ app.controller('consultaPreparaduria', function($scope, $http, $mdDialog, $windo
 
 
     $scope.expedientar = function(cedula) {
-        console.log('esta es la cedula', cedula)
+   
 
-        $http.get('/consultaInfoPreparaduria', { params: { cedula: cedula } }).success(function(data) {
+        $http.get('/consultaInfoPreparaduria', { params: { cedula: cedula } }).then(function(data) {
 
 
-            $scope.infobeneficiado = data;
+            $scope.infobeneficiado = data.data;
 
 
             data = {
@@ -433,9 +430,9 @@ app.controller('consultaPreparaduria', function($scope, $http, $mdDialog, $windo
             };
 
 
-            $http.post('/moverExpedientePreparaduria', data).success(function(respuesta) {
+            $http.post('/moverExpedientePreparaduria', data).then(function(respuesta) {
 
-                $http.delete('eliminarPreparaduria', { params: { cedula: cedula } }).success(function(data) {
+                $http.delete('eliminarPreparaduria', { params: { cedula: cedula } }).then(function(data) {
 
                     $mdDialog.show(
                         $mdDialog.alert()
@@ -466,24 +463,23 @@ app.controller('consultaPreparaduria', function($scope, $http, $mdDialog, $windo
 app.controller('consultaControlPreparaduria', function($scope, $http, $stateParams, $mdDialog, $mdMedia, $window) {
 
 
-    console.log($stateParams);
+  
     $scope.cedula = $stateParams.ci;
     $scope.infobeneficiado;
 
-    $http.get('/consultaInfoPreparaduria', { params: { cedula: $scope.cedula } }).success(function(data) {
+    $http.get('/consultaInfoPreparaduria', { params: { cedula: $scope.cedula } }).then(function(data) {
 
 
-        $scope.infobeneficiado = data;
-        console.log($scope.infobeneficiado);
+        $scope.infobeneficiado = data.data;
+   
 
     })
 
 
     $scope.eliminar = function() {
-        console.log('HELLO');
 
 
-        $http.delete('eliminarPreparaduria', { params: { cedula: $scope.cedula } }).success(function(data) {
+        $http.delete('eliminarPreparaduria', { params: { cedula: $scope.cedula } }).then(function(data) {
 
             $mdDialog.show(
                 $mdDialog.alert()
@@ -601,9 +597,9 @@ app.controller('consultaControlPreparaduria', function($scope, $http, $statePara
 
         };
 
-        $http.post('/moverExpedientePreparaduria', data).success(function(respuesta) {
+        $http.post('/moverExpedientePreparaduria', data).then(function(respuesta) {
 
-            $http.delete('eliminarPreparaduria', { params: { cedula: $scope.cedula } }).success(function(data) {
+            $http.delete('eliminarPreparaduria', { params: { cedula: $scope.cedula } }).then(function(data) {
 
                 $mdDialog.show(
                     $mdDialog.alert()
@@ -633,14 +629,12 @@ app.controller('modificarPreparaduria', function($scope, $http, $stateParams, $m
 
 
     $scope.prueba = $stateParams.code
-    $http.get('/consultaInfoX3', { params: { _id: $stateParams.code } }).success(function(data) {
+    $http.get('/consultaInfoX3', { params: { _id: $stateParams.code } }).then(function(data) {
 
-        $scope.infobeneficiado = data;
+        $scope.infobeneficiado = data.data;
 
-        var fecha = $filter('date')($scope.infobeneficiado[0].fecnac, "yyyy-MM-dd")
-        fecha2 = new Date(fecha);
-        var fecinicio = $filter('date')($scope.infobeneficiado[0].fecinicio, "yyyy-MM-dd")
-        fecha3 = new Date(fecinicio);
+      var fecha2 = new Date($scope.infobeneficiado[0].fecnac);
+        var fecha3 = new Date($scope.infobeneficiado[0].fecinicio);
         $scope.formulario = {
 
             nombre: $scope.infobeneficiado[0].nombres,
@@ -834,10 +828,10 @@ app.controller('modificarPreparaduria', function($scope, $http, $stateParams, $m
         };
 
 
-        $http.post('/actualizarPreparaduria', $scope.informacion).success(function(respuesta) {
+        $http.post('/actualizarPreparaduria', $scope.informacion).then(function(respuesta) {
 
 
-             if (respuesta=='Error') {
+             if (respuesta.data=='Error') {
 
                   $mdToast.show(
                 $mdToast.simple()
@@ -884,12 +878,12 @@ app.controller('preparaduriaReporte', function($scope, $http) {
 
     $scope.beneficiarios = [];
     $scope.beneficio = 'Preparaduria';
-    $http.get('/beneficiariosPreparaduria', { params: { beneficio: $scope.beneficio } }).success(function(data) {
-        $scope.beneficiarios = data;
-        console.log($scope.beneficiarios);
+    $http.get('/beneficiariosPreparaduria', { params: { beneficio: $scope.beneficio } }).then(function(data) {
+        $scope.beneficiarios = data.data;
+   
         var arreglo = [];
         var arreglomayor = [];
-        console.log($scope.beneficiarios[0].apellidos);
+
 
         var docDefinition = {
                 pageMargins: [20, 80, 20, 40],
@@ -960,7 +954,8 @@ app.controller('preparaduriaReporte', function($scope, $http) {
             }
         }
 
-        console.log($scope.beneficiarios.length);
+
+
         for (var i = 0; i < $scope.beneficiarios.length; i++) {
 
             docDefinition.content[1].table.body[i + 1] = [];
@@ -977,7 +972,7 @@ app.controller('preparaduriaReporte', function($scope, $http) {
 
 
 
-        console.log(docDefinition.content[1].table.body[1]);
+
 
 
         $scope.openPdf = function() {
@@ -1010,98 +1005,87 @@ app.controller('preparaduriaEstadisticas',function($scope, $http, $stateParams, 
 
 
 
-    $http.get('/informacionpreparaduria').success(function(data) {
+    $http.get('/informacionpreparaduria').then(function(data) {
 
-        $scope.totalbeneficiarios = data;
-
-    });
-
-
-    $http.get('/informacion1preparaduria').success(function(data) {
-        console.log('Entre');
-        console.log(data);
-        $scope.totalbeneficiarioshombres = data;
-
-    });
-
-    $http.get('/informacion2preparaduria').success(function(data) {
-        console.log('Entre');
-        console.log(data);
-        $scope.totalbeneficiariosmujeres = data;
+        $scope.totalbeneficiarios = data.data;
 
     });
 
 
-    $http.get('/informacion3preparaduria').success(function(data) {
-        console.log('Entre');
-        console.log(data);
-        $scope.totalbeneficiarios3 = data;
+    $http.get('/informacion1preparaduria').then(function(data) {
+      
+        $scope.totalbeneficiarioshombres = data.data;
+
+    });
+
+    $http.get('/informacion2preparaduria').then(function(data) {
+
+        $scope.totalbeneficiariosmujeres = data.data;
 
     });
 
 
-    $http.get('/informacion4preparaduria').success(function(data) {
-        console.log('Entre');
-        console.log(data);
-        $scope.totalbeneficiarios4 = data;
+    $http.get('/informacion3preparaduria').then(function(data) {
+  
+        $scope.totalbeneficiarios3 = data.data;
+
+    });
+
+
+    $http.get('/informacion4preparaduria').then(function(data) {
+   
+        $scope.totalbeneficiarios4 = data.data;
 
     });
 
 
 
-    $http.get('/informacion5preparaduria').success(function(data) {
-        console.log('Entre');
-        console.log(data);
-        $scope.totalbeneficiarios5 = data;
+    $http.get('/informacion5preparaduria').then(function(data) {
+        
+        $scope.totalbeneficiarios5 = data.data;
 
     });
 
 
-    $http.get('/informacion6preparaduria').success(function(data) {
-        console.log('Entre');
-        console.log(data);
-        $scope.totalbeneficiarios6 = data;
+    $http.get('/informacion6preparaduria').then(function(data) {
+     
+        $scope.totalbeneficiarios6 = data.data;
 
     });
 
 
-    $http.get('/informacion7preparaduria').success(function(data) {
-        console.log('Entre');
-        console.log(data);
-        $scope.totalbeneficiarios7 = data;
+    $http.get('/informacion7preparaduria').then(function(data) {
+
+        $scope.totalbeneficiarios7 = data.data;
 
     });
 
 
-    $http.get('/informacion8preparaduria').success(function(data) {
-        console.log('Entre');
-        console.log(data);
-        $scope.totalbeneficiarios8 = data;
+    $http.get('/informacion8preparaduria').then(function(data) {
+
+        $scope.totalbeneficiarios8 = data.data;
 
     });
 
 
-    $http.get('/informacion9preparaduria').success(function(data) {
-        console.log('Entre');
-        console.log(data);
-        $scope.totalbeneficiarios9 = data;
+    $http.get('/informacion9preparaduria').then(function(data) {
+
+        $scope.totalbeneficiarios9 = data.data;
 
     });
 
 
 
-    $http.get('/informacion10preparaduria').success(function(data) {
-        console.log('Entre');
-        console.log(data);
-        $scope.totalbeneficiarios10 = data;
+    $http.get('/informacion10preparaduria').then(function(data) {
+
+        $scope.totalbeneficiarios10 = data.data;
 
     });
 
 
-    $http.get('/informacion11preparaduria').success(function(data) {
-        console.log('Entre');
-        console.log(data);
-        $scope.totalbeneficiarios11 = data;
+    $http.get('/informacion11preparaduria').then(function(data) {
+
+        $scope.totalbeneficiarios11 = data.data;
 
     });
 

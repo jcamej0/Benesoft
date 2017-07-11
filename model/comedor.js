@@ -86,6 +86,7 @@ var schemaComedor = new Schema({
     civilopiacedula: Boolean,
     modificadoPor: String,
     persona: String,
+    copiacedula: Boolean,
     beneficio: String,
     ultimaModificacion: { type: Date, default: Date.now }
 
