@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": false,
   "scripts": {
-    "start": "app.js"
+    "start": "node ./bin/www"
   },
   "engines": {
     "node": "6.10.2"
